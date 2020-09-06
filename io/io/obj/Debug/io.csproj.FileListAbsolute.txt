@@ -1,0 +1,7 @@
+D:\io\io\io\bin\io.dll.config
+D:\io\io\io\bin\io.dll
+D:\io\io\io\bin\io.pdb
+D:\io\io\io\obj\Debug\io.csprojAssemblyReference.cache
+D:\io\io\io\obj\Debug\io.csproj.CoreCompileInputs.cache
+D:\io\io\io\obj\Debug\io.dll
+D:\io\io\io\obj\Debug\io.pdb

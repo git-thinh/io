@@ -1,0 +1,196 @@
+{
+  "groups": {
+    "dashboard": {
+      "Heading": "",
+      "Title": "Dashboard",
+      "Icon": "fe fe-file",
+      "Visible": true
+    },
+    "user": {
+      "Heading": "",
+      "Title": "User Infomation",
+      "Icon": "fe fe-file",
+      "Visible": false
+    },
+    "product": {
+      "Heading": "Ecommerce",
+      "Title": "Products",
+      "Icon": "fe fe-file",
+      "Visible": true
+    },
+    "order": {
+      "Heading": "Ecommerce",
+      "Title": "Orders",
+      "Icon": "fe fe-file",
+      "Visible": true
+    },
+    "appearance": {
+      "Heading": "My website",
+      "Title": "Appearance",
+      "Icon": "fe fe-file",
+      "Visible": true
+    }
+  },
+  "menus": {
+    "login": {
+      "Theme": "dashkit",
+      "Template": "login",
+      "Type": "main_site",
+      "Login": false,
+      "MenuVisible": false,
+      "Group": "",
+      "Title": "",
+      "Icon": ""
+    },
+    "user-profile": {
+      "Theme": "dashkit",
+      "Template": "user",
+      "Type": "main_site",
+      "Login": false,
+      "MenuVisible": false,
+      "Group": "user",
+      "Title": "Profile",
+      "Icon": ""
+    },
+    "user-chang-password": {
+      "Theme": "dashkit",
+      "Template": "user",
+      "Type": "main_site",
+      "Login": false,
+      "MenuVisible": false,
+      "Group": "user",
+      "Title": "Change Password",
+      "Icon": ""
+    },
+    "user-logout": {
+      "Theme": "dashkit",
+      "Template": "",
+      "Type": "_ioUI_userLogout",
+      "Login": false,
+      "MenuVisible": false,
+      "Group": "user",
+      "Title": "Logout",
+      "Icon": ""
+    },
+    "index": {
+      "Theme": "dashkit",
+      "Template": "index",
+      "Type": "main_site",
+      "Login": true,
+      "MenuVisible": true,
+      "Group": "dashboard",
+      "Title": "Home",
+      "Icon": ""
+    },
+    "dashboard": {
+      "Theme": "dashkit",
+      "Template": "main",
+      "Type": "main_site",
+      "Login": true,
+      "MenuVisible": true,
+      "Group": "dashboard",
+      "Title": "Dashboard",
+      "Icon": ""
+    },
+    "blank": {
+      "Theme": "dashkit",
+      "Template": "main",
+      "Type": "main_site",
+      "Login": true,
+      "MenuVisible": true,
+      "Group": "dashboard",
+      "Title": "Blank",
+      "Icon": ""
+    },
+    "kit-all": {
+      "Theme": "dashkit",
+      "Template": "kit-all",
+      "Type": "main_site",
+      "Login": true,
+      "MenuVisible": true,
+      "Group": "dashboard",
+      "Title": "All Kit",
+      "Icon": ""
+    },
+    "widget-all": {
+      "Theme": "dashkit",
+      "Template": "widget-all",
+      "Type": "main_site",
+      "Login": true,
+      "MenuVisible": true,
+      "Group": "dashboard",
+      "Title": "All Widget",
+      "Icon": ""
+    },
+    "product-all": {
+      "Theme": "dashkit",
+      "Template": "main.widget_product_all001",
+      "Type": "main_site",
+      "Login": true,
+      "MenuVisible": true,
+      "Group": "product",
+      "Title": "All Products",
+      "Icon": ""
+    },
+    "product-collection": {
+      "Theme": "dashkit",
+      "Template": "main.widget_product_collection001",
+      "Type": "main_site",
+      "Login": true,
+      "MenuVisible": true,
+      "Group": "product",
+      "Title": "Collections",
+      "Icon": ""
+    },
+    "order-all": {
+      "Theme": "dashkit",
+      "Template": "main.widget_product_collection001",
+      "Type": "main_site",
+      "Login": true,
+      "MenuVisible": true,
+      "Group": "order",
+      "Title": "Orders",
+      "Icon": ""
+    },
+    "order-payment": {
+      "Theme": "dashkit",
+      "Template": "main.widget_product_collection001",
+      "Type": "main_site",
+      "Login": true,
+      "MenuVisible": true,
+      "Group": "order",
+      "Title": "Payments",
+      "Icon": ""
+    },
+    "order-fulfillment": {
+      "Theme": "dashkit",
+      "Template": "main.widget_product_collection001",
+      "Type": "main_site",
+      "Login": true,
+      "MenuVisible": true,
+      "Group": "order",
+      "Title": "Fulfillments",
+      "Icon": ""
+    },
+    "appearance-theme": {
+      "Theme": "dashkit",
+      "Template": "main.widget_product_collection001",
+      "Type": "main_site",
+      "Login": true,
+      "MenuVisible": true,
+      "Group": "appearance",
+      "Title": "Themes",
+      "Icon": ""
+    },
+    "appearance-menu": {
+      "Theme": "dashkit",
+      "Template": "main.widget_product_collection001",
+      "Type": "main_site",
+      "Login": true,
+      "MenuVisible": true,
+      "Group": "appearance",
+      "Title": "Menus",
+      "Icon": ""
+    }
+  }
+}
