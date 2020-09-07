@@ -36,9 +36,8 @@ namespace io
 
         protected string createToken(string username)
         {
-            string token = "";
             var jsSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-            token = jsSerializer.Serialize(new
+            string token = jsSerializer.Serialize(new
             {
                 key = Guid.NewGuid(),
                 username = username,
@@ -51,100 +50,133 @@ namespace io
             return sBase64;
         }
 
-        protected void Application_BeginRequest(object sender, EventArgs e)
-        {
-            Uri url = HttpContext.Current.Request.Url;
-            string domain = url.Authority,
-                path = url.AbsolutePath.ToLower().Substring(1),
-                file = string.Empty;
-            string method = HttpContext.Current.Request.HttpMethod;
-            switch (method)
+        protected void responseWrite(object item) {
+            if (item != null)
             {
-                case "GET":
-                    switch (path)
-                    {
-                        case "login":
-                            HttpContext.Current.RewritePath("~/public/login.html");
-                            break;
-                        case "admin":
-                            HttpContext.Current.RewritePath("~/public/admin.html");
-                            break;
-                        default:
-                            if (mDomains.ContainsKey(domain))
-                            {
-                                int id = 0;
-                                if (mDomains.TryGetValue(domain, out id) && id > 0)
-                                {
-                                    string fileName = (path.Length == 0 ? "index.html" : path);
-                                    if (!fileName.EndsWith(".html")) fileName += ".html";
-                                    file = "~/public/" + id.ToString() + "/" + fileName;
-                                    string f = Server.MapPath(file);
-                                    if (!System.IO.File.Exists(f)) file = string.Empty;
-                                }
-                                if (file.Length > 0) HttpContext.Current.RewritePath(file);
-                            }
-                            break;
-                    }
-                    break;
-                case "POST":
-                    bool ok = false;
-                    string text, json,
-                        username = string.Empty,
-                        result = string.Empty, token = string.Empty;
-                    switch (path)
-                    {
-                        case "login":
-                            try
-                            {
-                                var stream = new System.IO.StreamReader(Request.InputStream);
-                                text = stream.ReadToEnd();
-                                json = HttpUtility.UrlDecode(text);
+                var jsSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                string json = jsSerializer.Serialize(item);
 
-                                var jsSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
-                                var dict = (Dictionary<string, object>)jsSerializer.DeserializeObject(json);
-
-                                if (dict.ContainsKey("username") && dict.ContainsKey("password"))
-                                {
-                                    username = dict["username"] as string;
-                                    if (!string.IsNullOrWhiteSpace(username))
-                                    {
-                                        string line = string.Format("{0}.{1}", username, dict["password"]);
-                                        string valid = mPass.FirstOrDefault(x => x == line);
-                                        ok = !string.IsNullOrWhiteSpace(valid);
-                                    }
-                                }
-
-                                result = @"{""Ok"":false}";
-                                if (ok)
-                                {
-                                    token = createToken(username);
-                                    string temp = string.Empty;
-                                    if (mTokens.ContainsKey(username)) mTokens.TryRemove(username, out temp);
-
-                                    string userJson = "{}";
-                                    string fileUser = Server.MapPath("~/data/user/" + username + ".json");
-                                    if (System.IO.File.Exists(fileUser))
-                                        userJson = System.IO.File.ReadAllText(fileUser);
-
-                                    result = @"{""Ok"":true, ""Data"":" + userJson + @", ""Token"":""" + token + @"""}";
-                                    mTokens.TryAdd(username, token);
-                                }
-                            }
-                            catch { }
-
-                            HttpContext.Current.Response.Clear();
-                            HttpContext.Current.Response.ContentType = "application/json";
-                            HttpContext.Current.Response.Write(result);
-                            HttpContext.Current.Response.Flush();
-                            HttpContext.Current.Response.End();
-                            break;
-                        case "admin":
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
+                HttpContext.Current.Response.Clear();
+                HttpContext.Current.Response.ContentType = "application/json";
+                HttpContext.Current.Response.Write(json);
+                HttpContext.Current.Response.Flush();
+                HttpContext.Current.Response.End();
             }
         }
+
+        protected void Application_BeginRequest(object sender, EventArgs e)
+        {
+            try
+            {
+                Uri url = HttpContext.Current.Request.Url;
+                string domain = url.Authority,
+                    path = url.AbsolutePath.ToLower().Substring(1),
+                    file = string.Empty;
+                string method = HttpContext.Current.Request.HttpMethod;
+                switch (method)
+                {
+                    case "GET":
+                        switch (path)
+                        {
+                            case "login":
+                                HttpContext.Current.RewritePath("~/public/login.html");
+                                break;
+                            case "admin":
+                                HttpContext.Current.RewritePath("~/public/admin.html");
+                                break;
+                            case "test":
+                                string site = HttpContext.Current.Request.QueryString["site"];
+                                if (!string.IsNullOrWhiteSpace(site))
+                                {
+                                    string f = Server.MapPath("~/test/" + site + ".html");
+                                    if (System.IO.File.Exists(f))
+                                    {
+                                        HttpContext.Current.RewritePath("~/test/" + site + ".html");
+                                    }
+                                    else
+                                    {
+                                        responseWrite(new { Ok = false, Message = "Cannot find " + f });
+                                    }
+                                }
+                                break;
+                            default:
+                                if (mDomains.ContainsKey(domain))
+                                {
+                                    int id = 0;
+                                    if (mDomains.TryGetValue(domain, out id) && id > 0)
+                                    {
+                                        string fileName = (path.Length == 0 ? "index.html" : path);
+                                        if (!fileName.EndsWith(".html")) fileName += ".html";
+                                        file = "~/public/" + id.ToString() + "/" + fileName;
+                                        string f = Server.MapPath(file);
+                                        if (!System.IO.File.Exists(f)) file = string.Empty;
+                                    }
+                                    if (file.Length > 0) HttpContext.Current.RewritePath(file);
+                                }
+                                break;
+                        }
+                        break;
+                    case "POST":
+                        bool ok = false;
+                        string text, json,
+                            username = string.Empty,
+                            result = string.Empty, token = string.Empty;
+                        switch (path)
+                        {
+                            case "login":
+                                try
+                                {
+                                    var stream = new System.IO.StreamReader(Request.InputStream);
+                                    text = stream.ReadToEnd();
+                                    json = HttpUtility.UrlDecode(text);
+
+                                    var jsSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                                    var dict = (Dictionary<string, object>)jsSerializer.DeserializeObject(json);
+
+                                    if (dict.ContainsKey("username") && dict.ContainsKey("password"))
+                                    {
+                                        username = dict["username"] as string;
+                                        if (!string.IsNullOrWhiteSpace(username))
+                                        {
+                                            string line = string.Format("{0}.{1}", username, dict["password"]);
+                                            string valid = mPass.FirstOrDefault(x => x == line);
+                                            ok = !string.IsNullOrWhiteSpace(valid);
+                                        }
+                                    }
+
+                                    result = @"{""Ok"":false}";
+                                    if (ok)
+                                    {
+                                        token = createToken(username);
+                                        string temp = string.Empty;
+                                        if (mTokens.ContainsKey(username)) mTokens.TryRemove(username, out temp);
+
+                                        string userJson = "{}";
+                                        string fileUser = Server.MapPath("~/data/user/" + username + ".json");
+                                        if (System.IO.File.Exists(fileUser))
+                                            userJson = System.IO.File.ReadAllText(fileUser);
+
+                                        result = @"{""Ok"":true, ""Data"":" + userJson + @", ""Token"":""" + token + @"""}";
+                                        mTokens.TryAdd(username, token);
+                                    }
+                                }
+                                catch { }
+
+                                HttpContext.Current.Response.Clear();
+                                HttpContext.Current.Response.ContentType = "application/json";
+                                HttpContext.Current.Response.Write(result);
+                                HttpContext.Current.Response.Flush();
+                                HttpContext.Current.Response.End();
+                                break;
+                            case "admin":
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                }
+            }
+            catch { }
+        } // end function
     }
 }

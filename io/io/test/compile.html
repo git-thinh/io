@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.9/vue.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <component v-for="article in compiledArticles" :is="article"></component>
+    </div>
+
+    <script type="text/javascript">
+        console.clear()
+
+        const articles = [
+            //{
+            //    title: "Testing",
+            //    articleTemplate: "<article-title></article-title>"
+            //},
+            {
+                title: "Testing 2",
+                articleTemplate: "<special-article :article-title='title'></special-article>"
+            },
+        ]
+
+        Vue.component("article-title", {
+            template: `<span>Article Title</span>`
+        })
+
+        Vue.component("special-article", {
+            props: ["articleTitle"],
+            template: `
+    <div>
+      <h1>{{articleTitle}}</h1>
+      <p>Some article text</p>
+    </div>
+  `
+        })
+
+        new Vue({
+            el: "#app",
+            data: {
+                articles
+            },
+            computed: {
+                compiledArticles() {
+                    return this.articles.map(function (a, index) {
+                        //let template = Vue.compile(a.articleTemplate);
+                        //console.log(index, template);
+                        //return Object.assign({}, template, { data() { return a } });
+
+                        let template = {
+                            render: function () {
+                                with (this) { return _c('special-article', { attrs: { "article-title": title } }) }
+                            },
+                            staticRenderFns: []
+                        };
+                        return Object.assign({}, template, { data() { return a } });
+
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
