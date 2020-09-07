@@ -4,6 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Security;
 using System.Web.SessionState;
+using Microsoft.ClearScript.JavaScript;
+using Microsoft.ClearScript.V8;
 
 namespace io
 {
@@ -50,7 +52,8 @@ namespace io
             return sBase64;
         }
 
-        protected void responseWrite(object item) {
+        protected void responseWrite(object item)
+        {
             if (item != null)
             {
                 var jsSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
@@ -71,8 +74,9 @@ namespace io
                 Uri url = HttpContext.Current.Request.Url;
                 string domain = url.Authority,
                     path = url.AbsolutePath.ToLower().Substring(1),
-                    file = string.Empty;
-                string method = HttpContext.Current.Request.HttpMethod;
+                    file = string.Empty, pathFile = string.Empty,
+                    method = HttpContext.Current.Request.HttpMethod;
+
                 switch (method)
                 {
                     case "GET":
@@ -86,17 +90,15 @@ namespace io
                                 break;
                             case "test":
                                 string site = HttpContext.Current.Request.QueryString["site"];
-                                if (!string.IsNullOrWhiteSpace(site))
+                                if (string.IsNullOrWhiteSpace(site)) site = "index";
+                                pathFile = Server.MapPath("~/test/" + site + ".html");
+                                if (System.IO.File.Exists(pathFile))
                                 {
-                                    string f = Server.MapPath("~/test/" + site + ".html");
-                                    if (System.IO.File.Exists(f))
-                                    {
-                                        HttpContext.Current.RewritePath("~/test/" + site + ".html");
-                                    }
-                                    else
-                                    {
-                                        responseWrite(new { Ok = false, Message = "Cannot find " + f });
-                                    }
+                                    HttpContext.Current.RewritePath("~/test/" + site + ".html");
+                                }
+                                else
+                                {
+                                    responseWrite(new { Ok = false, Message = "Cannot find " + pathFile });
                                 }
                                 break;
                             default:
@@ -108,8 +110,8 @@ namespace io
                                         string fileName = (path.Length == 0 ? "index.html" : path);
                                         if (!fileName.EndsWith(".html")) fileName += ".html";
                                         file = "~/public/" + id.ToString() + "/" + fileName;
-                                        string f = Server.MapPath(file);
-                                        if (!System.IO.File.Exists(f)) file = string.Empty;
+                                        pathFile = Server.MapPath(file);
+                                        if (!System.IO.File.Exists(pathFile)) file = string.Empty;
                                     }
                                     if (file.Length > 0) HttpContext.Current.RewritePath(file);
                                 }
