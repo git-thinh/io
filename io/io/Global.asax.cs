@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Security;
@@ -67,6 +68,32 @@ namespace io
             }
         }
 
+        protected void testClearScript()
+        {
+            string text = "", js = "";
+
+            using (var engine = new V8ScriptEngine())
+            {
+                string f = Server.MapPath("~/public/vue.min.js");
+                js = File.ReadAllText(f) + Environment.NewLine + @"
+                    function test(html) { var template = Vue.compile(html); return template.render.toString(); }
+                ";
+                engine.Execute(js);
+                string html = @"<div>
+                    <h1>{{title}}</h1>
+                    <input type=""text"" v-model=""title"" id=""fname"" name=""fname""><br>
+                    <special-article :article-title=""title""></special-article><br>
+                </div>";
+                text = engine.Script.test(html) as string;
+            }
+
+            HttpContext.Current.Response.Clear();
+            HttpContext.Current.Response.ContentType = "text/plain";
+            HttpContext.Current.Response.Write(text);
+            HttpContext.Current.Response.Flush();
+            HttpContext.Current.Response.End();
+        }
+
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
             try
@@ -87,6 +114,9 @@ namespace io
                                 break;
                             case "admin":
                                 HttpContext.Current.RewritePath("~/public/admin.html");
+                                break;
+                            case "test-v8":
+                                testClearScript();
                                 break;
                             case "test":
                                 string site = HttpContext.Current.Request.QueryString["site"];
@@ -178,7 +208,9 @@ namespace io
                         break;
                 }
             }
-            catch { }
+            catch (Exception err){
+                ;
+            }
         } // end function
     }
 }
