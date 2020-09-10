@@ -96,9 +96,9 @@ namespace io
 
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
+            Uri url = HttpContext.Current.Request.Url;
             try
             {
-                Uri url = HttpContext.Current.Request.Url;
                 string domain = url.Authority,
                     path = url.AbsolutePath.ToLower().Substring(1),
                     file = string.Empty, pathFile = string.Empty,
@@ -197,8 +197,8 @@ namespace io
                                 HttpContext.Current.Response.Clear();
                                 HttpContext.Current.Response.ContentType = "application/json";
                                 HttpContext.Current.Response.Write(result);
-                                HttpContext.Current.Response.Flush();
-                                HttpContext.Current.Response.End();
+                                //HttpContext.Current.Response.Flush();
+                                //HttpContext.Current.Response.End();
                                 break;
                             case "admin":
                                 break;
