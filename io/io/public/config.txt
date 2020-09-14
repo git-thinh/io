@@ -1,2 +1,0 @@
-﻿localhost;1
-localhost:62725;1

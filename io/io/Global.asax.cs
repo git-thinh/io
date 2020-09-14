@@ -64,7 +64,7 @@ namespace io
                 HttpContext.Current.Response.ContentType = "application/json";
                 HttpContext.Current.Response.Write(json);
                 HttpContext.Current.Response.Flush();
-                HttpContext.Current.Response.End();
+                HttpContext.Current.Response.Close();
             }
         }
 
@@ -91,7 +91,7 @@ namespace io
             HttpContext.Current.Response.ContentType = "text/plain";
             HttpContext.Current.Response.Write(text);
             HttpContext.Current.Response.Flush();
-            HttpContext.Current.Response.End();
+            HttpContext.Current.Response.Close();
         }
 
         protected void Application_BeginRequest(object sender, EventArgs e)
@@ -197,8 +197,8 @@ namespace io
                                 HttpContext.Current.Response.Clear();
                                 HttpContext.Current.Response.ContentType = "application/json";
                                 HttpContext.Current.Response.Write(result);
-                                //HttpContext.Current.Response.Flush();
-                                //HttpContext.Current.Response.End();
+                                HttpContext.Current.Response.Flush();
+                                HttpContext.Current.Response.Close();
                                 break;
                             case "admin":
                                 break;
