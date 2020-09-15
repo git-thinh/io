@@ -6,7 +6,7 @@
 			"localhost",
 			"localhost:62725"
 		],
-		"sites": [
+		"pages": [
 			"index.bootstrap-452.0",
 			"login.bootstrap-452.0",
 			"admin.bootstrap-452.1"
@@ -19,7 +19,7 @@
 			"thienphong.local",
 			"baovethienphong.com"
 		],
-		"sites": [
+		"pages": [
 			"index.bootstrap-452.0",
 			"login.bootstrap-452.0",
 			"admin.bootstrap-452.1"
@@ -32,7 +32,7 @@
 			"baove.local",
 			"baove.info"
 		],
-		"sites": [
+		"pages": [
 			"index.bootstrap-452.0",
 			"login.bootstrap-452.0",
 			"admin.bootstrap-452.1"

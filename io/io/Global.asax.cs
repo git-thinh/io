@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
-using System.Web.Security;
-using System.Web.SessionState;
-using Microsoft.ClearScript.JavaScript;
 using Microsoft.ClearScript.V8;
+using System.Collections.Generic;
 
 namespace io
 {
     public class Global : System.Web.HttpApplication
     {
-
-        static System.Collections.Concurrent.ConcurrentDictionary<string, int> mDomains
-            = new System.Collections.Concurrent.ConcurrentDictionary<string, int>();
+        static oSite[] mSites = new oSite[] { };
+        static System.Collections.Concurrent.ConcurrentDictionary<string, oSite> mDomains
+            = new System.Collections.Concurrent.ConcurrentDictionary<string, oSite>();
 
         static System.Collections.Concurrent.ConcurrentDictionary<string, string> mTokens
             = new System.Collections.Concurrent.ConcurrentDictionary<string, string>();
@@ -23,18 +20,18 @@ namespace io
 
         protected void Application_Start(object sender, EventArgs e)
         {
-            string file = Server.MapPath("~/public/config.txt");
-            if (System.IO.File.Exists(file))
+            string file = Server.MapPath("~/io/config.json");
+            if (File.Exists(file))
             {
-                var lines = System.IO.File.ReadAllLines(file).Where(x => x.Trim().Length > 0)
+                var lines = File.ReadAllLines(file).Where(x => x.Trim().Length > 0)
                     .Select(x => x.Split(';')).Where(x => x.Length == 2).GroupBy(x => x[0]).Select(x => x.Last()).ToArray();
                 for (var i = 0; i < lines.Length; i++)
                     try { mDomains.TryAdd(lines[i][0], int.Parse(lines[i][1])); } catch { }
             }
 
             string fLogin = Server.MapPath("~/data/login.txt");
-            if (System.IO.File.Exists(fLogin))
-                mPass = System.IO.File.ReadAllLines(fLogin).Where(x => x.Trim().Length > 0).ToArray();
+            if (File.Exists(fLogin))
+                mPass = File.ReadAllLines(fLogin).Where(x => x.Trim().Length > 0).ToArray();
         }
 
         protected string createToken(string username)
@@ -208,9 +205,18 @@ namespace io
                         break;
                 }
             }
-            catch (Exception err){
+            catch (Exception err)
+            {
                 ;
             }
         } // end function
+    }
+
+    public class oSite
+    {
+        public int id { set; get; }
+        public string name { set; get; }
+        public string[] domains { set; get; }
+        public string[] pages { set; get; }
     }
 }
