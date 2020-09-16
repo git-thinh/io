@@ -37,6 +37,7 @@ namespace io
         static ConcurrentDictionary<int, int> mPathPage = new ConcurrentDictionary<int, int>();
 
         static ConcurrentDictionary<string, string> mTokens = new ConcurrentDictionary<string, string>();
+        static ConcurrentDictionary<string, string> mUserInfo = new ConcurrentDictionary<string, string>();
 
         static string[] mPass = new string[] { };
 
@@ -96,11 +97,22 @@ namespace io
             mPaths = listPaths.ToArray();
         }
 
-        public static void user_loadPassword(HttpApplication app)
+        public static void user_loadDataAll(HttpApplication app)
         {
             string fLogin = app.Server.MapPath("~/data/login.txt");
             if (File.Exists(fLogin))
                 mPass = File.ReadAllLines(fLogin).Where(x => x.Trim().Length > 0).ToArray();
+
+            string dir = app.Server.MapPath("~/data/user");
+            if (Directory.Exists(dir)) {
+                string[] files = Directory.GetFiles(dir, "*.json");
+                for (int i = 0; i < files.Length; i++) {
+                    string name = Path.GetFileName(files[i]),
+                        json = File.ReadAllText(files[i]);
+                    name = name.Substring(0, name.Length - 5).ToLower().Trim();
+                    mUserInfo.TryAdd(name, json);
+                }
+            }
         }
 
         private static string user_createToken(string username)
@@ -139,6 +151,18 @@ namespace io
             }
         }
 
+        private static string render_pageHtml(string html, oPage page)
+        {
+            string s =
+                        @"<input type=""hidden"" id=""___io_site"" value=""" + page.site_id.ToString() + @"""/>" +
+                        @"<input type=""hidden"" id=""___io_theme"" value=""" + page.theme + @"""/>" +
+                        @"<input type=""hidden"" id=""___io_token"" value=""""/>" +
+                        @"<script src=""/io/sdk.js""></script>" +
+                        "</body>";
+            string render = html.Replace("</body>", s);
+            return render;
+        }
+
         private static bool response_rewritePath(HttpApplication app, string pathFile, oPage page)
         {
             if (page == null) return false;
@@ -157,25 +181,19 @@ namespace io
             else if (File.Exists(file))
             {
                 html = File.ReadAllText(file);
-                string s = 
-                    @"<input type=""hidden"" id=""___io_site"" value=""" + page.site_id.ToString() + @"""/>" +
-                    @"<input type=""hidden"" id=""___io_theme"" value=""" + page.theme + @"""/>" +
-                    @"<input type=""hidden"" id=""___io_token"" value=""""/>" +
-                    @"<script src=""/io/sdk.js""></script>" +
-                    "</body>";
-                html = html.Replace("</body>", s);
+                html = render_pageHtml(html, page);
                 mCaches.TryAdd(key, html);
                 ok = true;
             }
 
             if (ok)
             {
-                string name = "io_page_" + page.path.ToLower(), value = page.theme;
-                HttpContext.Current.Response.Cookies.Set(new HttpCookie(name, value));
+                //string name = "io_page_" + page.path.ToLower(), value = page.theme;
+                //HttpContext.Current.Response.Cookies.Set(new HttpCookie(name, value));
 
-                name = "io_site_" + page.path.ToLower();
-                value = page.site_id.ToString();
-                HttpContext.Current.Response.Cookies.Set(new HttpCookie(name, value));
+                //name = "io_site_" + page.path.ToLower();
+                //value = page.site_id.ToString();
+                //HttpContext.Current.Response.Cookies.Set(new HttpCookie(name, value));
 
                 response_Write(html, "text/html");
             }
@@ -291,31 +309,31 @@ namespace io
             return false;
         }
 
-        //protected void testClearScript()
-        //{
-        //    string text = "", js = "";
+        static void jse_test1(HttpApplication app)
+        {
+            string text = "", js = "";
 
-        //    using (var engine = new V8ScriptEngine())
-        //    {
-        //        string f = Server.MapPath("~/public/vue.min.js");
-        //        js = File.ReadAllText(f) + Environment.NewLine + @"
-        //            function test(html) { var template = Vue.compile(html); return template.render.toString(); }
-        //        ";
-        //        engine.Execute(js);
-        //        string html = @"<div>
-        //            <h1>{{title}}</h1>
-        //            <input type=""text"" v-model=""title"" id=""fname"" name=""fname""><br>
-        //            <special-article :article-title=""title""></special-article><br>
-        //        </div>";
-        //        text = engine.Script.test(html) as string;
-        //    }
+            using (var engine = new V8ScriptEngine())
+            {
+                string f = app.Server.MapPath("~/public/vue.min.js");
+                js = File.ReadAllText(f) + Environment.NewLine + @"
+                    function test(html) { var template = Vue.compile(html); return template.render.toString(); }
+                ";
+                engine.Execute(js);
+                string html = @"<div>
+                    <h1>{{title}}</h1>
+                    <input type=""text"" v-model=""title"" id=""fname"" name=""fname""><br>
+                    <special-article :article-title=""title""></special-article><br>
+                </div>";
+                text = engine.Script.test(html) as string;
+            }
 
-        //    HttpContext.Current.Response.Clear();
-        //    HttpContext.Current.Response.ContentType = "text/plain";
-        //    HttpContext.Current.Response.Write(text);
-        //    HttpContext.Current.Response.Flush();
-        //    HttpContext.Current.Response.Close();
-        //}
+            HttpContext.Current.Response.Clear();
+            HttpContext.Current.Response.ContentType = "text/plain";
+            HttpContext.Current.Response.Write(text);
+            HttpContext.Current.Response.Flush();
+            HttpContext.Current.Response.Close();
+        }
 
     }
 
@@ -324,7 +342,7 @@ namespace io
         protected void Application_Start(object sender, EventArgs e)
         {
             self.app_loadConfig(this);
-            self.user_loadPassword(this);
+            self.user_loadDataAll(this);
         }
 
         protected void Application_BeginRequest(object sender, EventArgs e)

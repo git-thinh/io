@@ -152,6 +152,7 @@
     <Content Include="io\theme\dashkit-151\scss\theme.scss" />
     <Content Include="io\theme\dashkit-151\scss\_user-variables.scss" />
     <Content Include="io\theme\dashkit-151\scss\_user.scss" />
+    <Content Include="data\user\tu.json" />
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
