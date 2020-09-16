@@ -72,9 +72,11 @@
     <Content Include="data\site\1.json" />
     <Content Include="data\user\thinh.json" />
     <Content Include="favicon.ico" />
-    <Content Include="io\site\admin.bootstrap-452.html" />
-    <Content Include="io\site\index.bootstrap-452.html" />
-    <Content Include="io\site\login.bootstrap-452.html" />
+    <Content Include="io\site\404.htm" />
+    <Content Include="io\site\404.bootstrap-452.htm" />
+    <Content Include="io\site\admin.bootstrap-452.htm" />
+    <Content Include="io\site\index.bootstrap-452.htm" />
+    <Content Include="io\site\login.bootstrap-452.htm" />
     <Content Include="io\theme\bootstrap-452\bootstrap.min.css" />
     <Content Include="io\theme\dashkit-151\fonts\cerebrisans\cerebrisans-bold.eot" />
     <Content Include="io\theme\dashkit-151\fonts\cerebrisans\cerebrisans-bold.ttf" />
