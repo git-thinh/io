@@ -104,9 +104,11 @@ namespace io
                 mPass = File.ReadAllLines(fLogin).Where(x => x.Trim().Length > 0).ToArray();
 
             string dir = app.Server.MapPath("~/data/user");
-            if (Directory.Exists(dir)) {
+            if (Directory.Exists(dir))
+            {
                 string[] files = Directory.GetFiles(dir, "*.json");
-                for (int i = 0; i < files.Length; i++) {
+                for (int i = 0; i < files.Length; i++)
+                {
                     string name = Path.GetFileName(files[i]),
                         json = File.ReadAllText(files[i]);
                     name = name.Substring(0, name.Length - 5).ToLower().Trim();
@@ -309,30 +311,44 @@ namespace io
             return false;
         }
 
-        static void jse_test1(HttpApplication app)
-        {
-            string text = "", js = "";
-
-            using (var engine = new V8ScriptEngine())
+        static string vueScript = string.Empty;
+        public static void vue_initScript(HttpApplication app) {
+            string f = app.Server.MapPath("~/public/vue.esm.min.js");
+            if (File.Exists(f))
             {
-                string f = app.Server.MapPath("~/public/vue.min.js");
-                js = File.ReadAllText(f) + Environment.NewLine + @"
-                    function test(html) { var template = Vue.compile(html); return template.render.toString(); }
-                ";
-                engine.Execute(js);
-                string html = @"<div>
-                    <h1>{{title}}</h1>
-                    <input type=""text"" v-model=""title"" id=""fname"" name=""fname""><br>
-                    <special-article :article-title=""title""></special-article><br>
-                </div>";
-                text = engine.Script.test(html) as string;
-            }
+                string jsVueCustomBegin = "var process = { env: { NODE_ENV: '' } };",
+                    jsVueCustomEnd = ";decodeHTMLCached = function (s) { return s };",
+                    js = File.ReadAllText(f);
+                
+                int pos = js.IndexOf("export default Vue");
+                if (pos != -1) js = js.Substring(0, pos);
 
-            HttpContext.Current.Response.Clear();
-            HttpContext.Current.Response.ContentType = "text/plain";
-            HttpContext.Current.Response.Write(text);
-            HttpContext.Current.Response.Flush();
-            HttpContext.Current.Response.Close();
+                vueScript = jsVueCustomBegin + js + jsVueCustomEnd +
+                    @";function vue_compileRender(html) { var t = Vue.compile(html); return t.render.toString(); };";
+            }
+        }
+
+        public static string jse_test1(HttpApplication app)
+        {
+            string text = "";
+            try
+            {
+                using (var engine = new V8ScriptEngine())
+                {
+                    engine.Execute(vueScript);
+                    string html =
+                        @"<div>
+                            <h1>{{title}}</h1>
+                            <input type=""text"" v-model=""title"" id=""fname"" name=""fname""><br>
+                    </div>";
+                    text = engine.Script.vue_compileRender(html) as string;
+                }
+            }
+            catch (Exception e)
+            {
+                text = e.Message;
+            }
+            return text;
         }
 
     }
@@ -341,8 +357,11 @@ namespace io
     {
         protected void Application_Start(object sender, EventArgs e)
         {
+            self.vue_initScript(this);
             self.app_loadConfig(this);
             self.user_loadDataAll(this);
+            
+            self.jse_test1(this);
         }
 
         protected void Application_BeginRequest(object sender, EventArgs e)

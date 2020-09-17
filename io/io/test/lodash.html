@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.12/vue.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <component v-for="article in compiledArticles" :is="article"></component>
+    </div>
+
+    <script type="text/javascript">
+        console.clear()
+
+        const articles = [
+            //{
+            //    title: "Testing",
+            //    articleTemplate: "<article-title></article-title>"
+            //},
+            //{
+            //    title: "Testing 2",
+            //    articleTemplate: "<special-article :article-title='title'></special-article>"
+            //},
+            {
+                title: 'Testing 3',
+                articleTemplate: `
+<div>
+    <h1>{{title}}</h1>
+    <input type="text" v-model="title" id="fname" name="fname"><br>
+    <special-article :article-title="title"></special-article><br>
+</div>`
+            },
+        ]
+
+        Vue.component("article-title", {
+            template: `<span>Article Title</span>`
+        })
+
+        Vue.component("special-article", {
+            props: ["articleTitle"],
+            template: `
+    <div>
+      <h1>{{articleTitle}}</h1>
+      <p>Some article text</p>
+    </div>
+  `
+        })
+
+        new Vue({
+            el: "#app",
+            data: {
+                articles
+            },
+            computed: {
+                compiledArticles() {
+                    return this.articles.map(function (a, index) {
+                        //let template = Vue.compile(a.articleTemplate);
+                        //console.log(index, template.render);
+                        //return Object.assign({}, template, { data() { return a } });
+
+                        let template = {
+                            render: function () {
+                                with (this) { return _c('div', [_c('h1', [_v(_s(title))]), _v(" "), _c('input', { directives: [{ name: "model", rawName: "v-model", value: (title), expression: "title" }], attrs: { "type": "text", "id": "fname", "name": "fname" }, domProps: { "value": (title) }, on: { "input": function ($event) { if ($event.target.composing) return; title = $event.target.value } } }), _c('br'), _v(" "), _c('special-article', { attrs: { "article-title": title } }), _c('br')], 1) }
+                            },
+                            staticRenderFns: []
+                        };
+                        return Object.assign({}, template, { data() { return a } });
+
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

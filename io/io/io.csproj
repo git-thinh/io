@@ -588,6 +588,10 @@
     <Content Include="public\1\index.html" />
     <Content Include="public\1\order-checkout.html" />
     <Content Include="public\1\test.html" />
+    <Content Include="public\lodash.min.js" />
+    <Content Include="public\vue.esm.js" />
+    <Content Include="public\vue.esm.min.js" />
+    <Content Include="public\vue.min.js" />
     <Content Include="test\tree.html" />
     <Content Include="public\1\admin.html" />
     <None Include="io\config.json" />
