@@ -40,6 +40,8 @@ namespace io
         static ConcurrentDictionary<string, string> mUserInfo = new ConcurrentDictionary<string, string>();
 
         static string[] mPass = new string[] { };
+        
+        #region [ APP_INIT ]
 
         public static void app_loadConfig(HttpApplication app)
         {
@@ -97,8 +99,11 @@ namespace io
             mPaths = listPaths.ToArray();
         }
 
-        public static void user_loadDataAll(HttpApplication app)
+        public static void user_loadAll(HttpApplication app)
         {
+            mPass = new string[] { };
+            mUserInfo.Clear();
+
             string fLogin = app.Server.MapPath("~/data/login.txt");
             if (File.Exists(fLogin))
                 mPass = File.ReadAllLines(fLogin).Where(x => x.Trim().Length > 0).ToArray();
@@ -117,6 +122,10 @@ namespace io
             }
         }
 
+        #endregion
+
+        #region [ USER_TOKEN ]
+
         private static string user_createToken(string username)
         {
             var jsSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
@@ -132,6 +141,10 @@ namespace io
             string sBase64 = System.Convert.ToBase64String(toEncodeAsBytes);
             return sBase64;
         }
+
+        #endregion
+
+        #region [ RESPONSE ]
 
         private static void response_Write(object item, string contentType = "application/json")
         {
@@ -151,18 +164,6 @@ namespace io
                 HttpContext.Current.Response.Flush();
                 HttpContext.Current.Response.Close();
             }
-        }
-
-        private static string render_pageHtml(string html, oPage page)
-        {
-            string s =
-                        @"<input type=""hidden"" id=""___io_site"" value=""" + page.site_id.ToString() + @"""/>" +
-                        @"<input type=""hidden"" id=""___io_theme"" value=""" + page.theme + @"""/>" +
-                        @"<input type=""hidden"" id=""___io_token"" value=""""/>" +
-                        @"<script src=""/io/sdk.js""></script>" +
-                        "</body>";
-            string render = html.Replace("</body>", s);
-            return render;
         }
 
         private static bool response_rewritePath(HttpApplication app, string pathFile, oPage page)
@@ -202,6 +203,13 @@ namespace io
 
             return ok;
         }
+
+        #endregion
+
+        #region [ ROUTER_RENDER ]
+
+        static V8ScriptEngine mJsEngine = null;
+        static string mJsVueScript = string.Empty;
 
         public static bool request_Router(HttpApplication app)
         {
@@ -311,7 +319,18 @@ namespace io
             return false;
         }
 
-        static string vueScript = string.Empty;
+        private static string render_pageHtml(string html, oPage page)
+        {
+            string s =
+                        @"<input type=""hidden"" id=""___io_site"" value=""" + page.site_id.ToString() + @"""/>" +
+                        @"<input type=""hidden"" id=""___io_theme"" value=""" + page.theme + @"""/>" +
+                        @"<input type=""hidden"" id=""___io_token"" value=""""/>" +
+                        @"<script src=""/io/sdk.js""></script>" +
+                        "</body>";
+            string render = html.Replace("</body>", s);
+            return render;
+        }
+
         public static void vue_initScript(HttpApplication app) {
             string f = app.Server.MapPath("~/public/vue.esm.min.js");
             if (File.Exists(f))
@@ -323,8 +342,11 @@ namespace io
                 int pos = js.IndexOf("export default Vue");
                 if (pos != -1) js = js.Substring(0, pos);
 
-                vueScript = jsVueCustomBegin + js + jsVueCustomEnd +
-                    @";function vue_compileRender(html) { var t = Vue.compile(html); return t.render.toString(); };";
+                mJsVueScript = jsVueCustomBegin + js + jsVueCustomEnd +
+                    @";function vue_compileRender(html) { try { var t = Vue.compile(html); var s = t.render.toString(); var pos = s.indexOf('{'); if(pos != -1){ s = 'function()' + s.substr(pos); }; return s; }catch(e){ return 'ERR: ' + e.message; }};";
+
+                mJsEngine = new V8ScriptEngine();
+                mJsEngine.Execute(mJsVueScript);
             }
         }
 
@@ -333,16 +355,12 @@ namespace io
             string text = "";
             try
             {
-                using (var engine = new V8ScriptEngine())
-                {
-                    engine.Execute(vueScript);
                     string html =
                         @"<div>
                             <h1>{{title}}</h1>
                             <input type=""text"" v-model=""title"" id=""fname"" name=""fname""><br>
                     </div>";
-                    text = engine.Script.vue_compileRender(html) as string;
-                }
+                    text = mJsEngine.Script.vue_compileRender(html) as string;
             }
             catch (Exception e)
             {
@@ -350,7 +368,8 @@ namespace io
             }
             return text;
         }
-
+        
+        #endregion
     }
 
     public class Global : HttpApplication
@@ -359,7 +378,7 @@ namespace io
         {
             self.vue_initScript(this);
             self.app_loadConfig(this);
-            self.user_loadDataAll(this);
+            self.user_loadAll(this);
             
             self.jse_test1(this);
         }
