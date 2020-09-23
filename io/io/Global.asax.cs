@@ -40,7 +40,25 @@ namespace io
         static ConcurrentDictionary<string, string> mUserInfo = new ConcurrentDictionary<string, string>();
 
         static string[] mPass = new string[] { };
-        
+
+        static ConcurrentDictionary<string, string> mSite_Html = new ConcurrentDictionary<string, string>();
+        static ConcurrentDictionary<string, string> mSite_Modules = new ConcurrentDictionary<string, string>();
+
+        public static string[] mKitGroups = new string[] { };
+        public static string[] mKits = new string[] { };
+
+        public static string[] mUIGroups = new string[] { };
+        public static string[] mUIs = new string[] { };
+        static ConcurrentDictionary<string, string> mUI_Html = new ConcurrentDictionary<string, string>();
+        static ConcurrentDictionary<string, string> mUI_Js = new ConcurrentDictionary<string, string>();
+        static ConcurrentDictionary<string, string> mUI_Css = new ConcurrentDictionary<string, string>();
+
+        public static string ROOT_PATH = "";
+        public static void Init(HttpApplication app)
+        {
+            ROOT_PATH = app.Server.MapPath("~/");
+        }
+
         #region [ APP_INIT ]
 
         public static void app_loadConfig(HttpApplication app)
@@ -324,21 +342,56 @@ namespace io
             string s =
                         @"<input type=""hidden"" id=""___io_site"" value=""" + page.site_id.ToString() + @"""/>" +
                         @"<input type=""hidden"" id=""___io_theme"" value=""" + page.theme + @"""/>" +
-                        @"<input type=""hidden"" id=""___io_token"" value=""""/>" +
-                        @"<script src=""/io/sdk.js""></script>" +
-                        "</body>";
+                        @"<input type=""hidden"" id=""___io_token"" value=""""/>",
+                        uiJs = string.Empty,
+                        key = string.Format("{0}.{1}", page.path, page.theme),
+                        uis = string.Empty,
+                        uiName, uiTag, uiHtml = string.Empty;
+            string[] a;
+            if (mSite_Modules.ContainsKey(key))
+            {
+                mSite_Modules.TryGetValue(key, out uis);
+                if (!string.IsNullOrWhiteSpace(uis))
+                {
+                    a = uis.Split(';');
+                    if (a.Length == 1)
+                    {
+                        uiName = a[0];
+                        uiTag = "{{" + uiName + "}}";
+                        if (mUI_Html.ContainsKey(uiName))
+                            mUI_Html.TryGetValue(uiName, out uiHtml);
+                        html = html.Replace(uiTag, uiHtml);
+                        uiJs += @"<script src=""/ui/" + uiName.Split('.')[0] + @".js""></script>";
+                    }
+                    else
+                    {
+                        for (int i = 0; i < a.Length; i++)
+                        {
+                            uiName = a[i];
+                            uiTag = "{{" + uiName + "}}";
+                            if (mUI_Html.ContainsKey(uiName))
+                                mUI_Html.TryGetValue(uiName, out uiHtml);
+                            html = html.Replace(uiTag, uiHtml);
+                            uiJs += @"<script src=""/ui/" + uiName.Split('.')[0] + @".js""></script>";
+                        }
+                    }
+                }
+            }
+
+            s = s + uiJs + @"<script src=""/io/ui.sdk.js""></script></body>";
             string render = html.Replace("</body>", s);
             return render;
         }
 
-        public static void vue_initScript(HttpApplication app) {
+        public static void vue_initScript(HttpApplication app)
+        {
             string f = app.Server.MapPath("~/public/vue.esm.min.js");
             if (File.Exists(f))
             {
                 string jsVueCustomBegin = "var process = { env: { NODE_ENV: '' } };",
                     jsVueCustomEnd = ";decodeHTMLCached = function (s) { return s };",
                     js = File.ReadAllText(f);
-                
+
                 int pos = js.IndexOf("export default Vue");
                 if (pos != -1) js = js.Substring(0, pos);
 
@@ -355,12 +408,12 @@ namespace io
             string text = "";
             try
             {
-                    string html =
-                        @"<div>
+                string html =
+                    @"<div>
                             <h1>{{title}}</h1>
                             <input type=""text"" v-model=""title"" id=""fname"" name=""fname""><br>
                     </div>";
-                    text = mJsEngine.Script.vue_compileRender(html) as string;
+                text = mJsEngine.Script.vue_compileRender(html) as string;
             }
             catch (Exception e)
             {
@@ -368,7 +421,123 @@ namespace io
             }
             return text;
         }
-        
+
+        #endregion
+
+        #region [ SITE ]
+
+        public static void site_Init(HttpApplication app)
+        {
+            string root = Path.Combine(ROOT_PATH, @"io\site");
+            if (Directory.Exists(root))
+            {
+                var a = Directory.GetFiles(root, "*.htm");
+                var fs = a.Select(x => Path.GetFileName(x)).ToArray();
+                string text, name, ui;
+                string[] uis = new string[] { };
+                for (int i = 0; i < a.Length; i++)
+                {
+                    name = fs[i].Substring(0, fs[i].Length - 4);
+                    text = File.ReadAllText(a[i]);
+                    mSite_Html.TryAdd(name, text);
+
+                    uis = text.Split(new string[] { "{{" }, StringSplitOptions.None)
+                        .Where(ax => ax.Length > 1)
+                        .Where((ax, k) => k > 0 && k < ax.Length - 2)
+                        .Select(x => x.Split('}')[0].Trim())
+                        .Distinct()
+                        .ToArray();
+                    if (uis.Length > 0)
+                        mSite_Modules.TryAdd(name, string.Join(";", uis));
+                }
+            }
+        }
+
+        #endregion
+
+        #region [ KIT ]
+
+        public static void kit_Init(HttpApplication app)
+        {
+            List<string> listKits = new List<string>() { };
+            List<string> listPaths = new List<string>() { };
+            string root = Path.Combine(ROOT_PATH, @"io\kit");
+            if (Directory.Exists(root))
+            {
+                var a = Directory.GetDirectories(root);
+                mKitGroups = a.Select(x => Path.GetFileName(x)).ToArray();
+                foreach (var g in a)
+                {
+                    string group = Path.GetFileName(g);
+                    var ks = Directory.GetDirectories(g);
+                    var ki = ks.Select(x => group + "_" + Path.GetFileName(x)).ToArray();
+                    listKits.AddRange(ki);
+                    listPaths.AddRange(ks);
+                }
+            }
+            mKits = listKits.ToArray();
+
+            for (int i = 0; i < mKits.Length; i++)
+            {
+                string kit = mKits[i], path = listPaths[i];
+                var fs = Directory.GetFiles(path).Select(x => Path.GetFileName(x)).ToArray();
+
+            }
+        }
+
+        #endregion
+
+        #region [ UI ]
+
+        public static void ui_Init(HttpApplication app)
+        {
+            List<string> listUIs = new List<string>() { };
+            List<string> listPaths = new List<string>() { };
+            string root = Path.Combine(ROOT_PATH, @"io\ui");
+            if (Directory.Exists(root))
+            {
+                var a = Directory.GetDirectories(root);
+                mUIGroups = a.Select(x => Path.GetFileName(x)).ToArray();
+                foreach (var g in a)
+                {
+                    string group = Path.GetFileName(g);
+                    var us = Directory.GetDirectories(g);
+                    var ui = us.Select(x => group + "_" + Path.GetFileName(x)).ToArray();
+                    listUIs.AddRange(ui);
+                    listPaths.AddRange(us);
+                }
+            }
+            mUIs = listUIs.ToArray();
+
+            for (int i = 0; i < mUIs.Length; i++)
+            {
+                string ui = mUIs[i], path = listPaths[i];
+                var a = Directory.GetFiles(path, "*.htm");
+                var fs = a.Select(x => Path.GetFileName(x)).ToArray();
+
+                string file, text;
+
+                file = Path.Combine(ROOT_PATH, "io\\ui\\" + ui.Replace('_', '\\') + "\\method.js");
+                if (File.Exists(file))
+                {
+                    text = "function ui_" + ui + "(){\r\n" + File.ReadAllText(file) + "\r\n}";
+                    mUI_Js.TryAdd(ui, text);
+                }
+
+                for (int j = 0; j < fs.Length; j++)
+                {
+                    string tempName = ui + "." + fs[j].Substring(0, fs[j].Length - 4);
+                    file = Path.Combine(ROOT_PATH, "io\\ui\\" + ui.Replace('_', '\\') + "\\" + fs[j]);
+                    if (File.Exists(file))
+                    {
+                        text = File.ReadAllText(file);
+                        mUI_Html.TryAdd(tempName, text);
+                    }
+
+                }
+            }
+        }
+
         #endregion
     }
 
@@ -376,10 +545,16 @@ namespace io
     {
         protected void Application_Start(object sender, EventArgs e)
         {
-            self.vue_initScript(this);
+            self.Init(this);
+
             self.app_loadConfig(this);
             self.user_loadAll(this);
-            
+
+            self.vue_initScript(this);
+            self.site_Init(this);
+            self.kit_Init(this);
+            self.ui_Init(this);
+
             self.jse_test1(this);
         }
 

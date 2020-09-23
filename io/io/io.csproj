@@ -72,11 +72,12 @@
     <Content Include="data\site\1.json" />
     <Content Include="data\user\thinh.json" />
     <Content Include="favicon.ico" />
-    <Content Include="io\kit\user\1\method.js" />
-    <Content Include="io\kit\user\1\data.js" />
-    <Content Include="io\kit\user\1\ready.js" />
-    <None Include="io\kit\user\1\setting.json" />
-    <Content Include="io\kit\user\1\temp.htm" />
+    <Content Include="io\am\user\1\method.js" />
+    <Content Include="io\am\user\1\data.js" />
+    <Content Include="io\am\user\1\ready.js" />
+    <None Include="io\am\user\1\setting.json" />
+    <Content Include="io\am\user\1\bootstrap-452.htm" />
+    <Content Include="io\ui.sdk.js" />
     <Content Include="io\site\404.htm" />
     <Content Include="io\site\404.bootstrap-452.htm" />
     <Content Include="io\site\admin.bootstrap-452.htm" />
@@ -588,6 +589,9 @@
     <Content Include="io\theme\dashkit-151\libs\select2\dist\js\select2.min.js" />
     <Content Include="io\site\login.dashkit-151.htm" />
     <Content Include="io\site\admin.dashkit-151.htm" />
+    <Content Include="io\ui\user\1\bootstrap-452.htm" />
+    <Content Include="io\ui\user\1\method.js" />
+    <Content Include="io\ui\user\1\style.css" />
     <Content Include="public\1\404.html" />
     <Content Include="public\1\collapse.html" />
     <Content Include="public\1\index.html" />
