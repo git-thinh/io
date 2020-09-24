@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Microsoft.ClearScript.V8;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 
 namespace io
 {
@@ -236,7 +237,7 @@ namespace io
             {
                 oPage page = null;
                 int index = -1, id = -1;
-                string domain = url.Authority,
+                string domain = url.Authority, newPath,
                     path = HttpUtility.UrlDecode(url.AbsolutePath.ToLower().Substring(1)),
                     key = string.Format("{0}/{1}", domain, path.Length == 0 ? "index" : path),
                     file = string.Empty,
@@ -244,6 +245,16 @@ namespace io
                     method = HttpContext.Current.Request.HttpMethod;
                 if (method == "GET")
                 {
+                    if (path.EndsWith(".js"))
+                    {
+                        if (path.StartsWith("ui/"))
+                            newPath = "~/io/" + path.Replace('_', '/').Replace(".", "/method.");
+                        else
+                            newPath = "~/" + path;
+                        HttpContext.Current.RewritePath(newPath);
+                        return true;
+                    }
+
                     for (int i = 0; i < mPaths.Length; i++)
                     {
                         if (mPaths[i] == key)
@@ -361,7 +372,7 @@ namespace io
                         if (mUI_Html.ContainsKey(uiName))
                             mUI_Html.TryGetValue(uiName, out uiHtml);
                         html = html.Replace(uiTag, uiHtml);
-                        uiJs += @"<script src=""/ui/" + uiName.Split('.')[0] + @".js""></script>";
+                        uiJs += @"<script src=""/ui/" + uiName.Split('.')[0] + @".js"" type=""text/javascript""></script>";
                     }
                     else
                     {
@@ -372,13 +383,17 @@ namespace io
                             if (mUI_Html.ContainsKey(uiName))
                                 mUI_Html.TryGetValue(uiName, out uiHtml);
                             html = html.Replace(uiTag, uiHtml);
-                            uiJs += @"<script src=""/ui/" + uiName.Split('.')[0] + @".js""></script>";
+                            uiJs += @"<script src=""/ui/" + uiName.Split('.')[0] + @".js"" type=""text/javascript""></script>";
                         }
                     }
                 }
             }
 
-            s = s + uiJs + @"<script src=""/io/ui.sdk.js""></script></body>";
+            s = s +
+                @"<script src=""/io/vue.min.js"" type=""text/javascript""></script>" +
+                uiJs +
+                @"<script src=""/io/ui.sdk.js"" type=""text/javascript""></script>" +                
+                "</body>";
             string render = html.Replace("</body>", s);
             return render;
         }
