@@ -7,9 +7,9 @@
 			"localhost:62725"
 		],
 		"pages": [
-			"index.bootstrap-452.0",
-			"login.bootstrap-452.0",
-			"admin.bootstrap-452.1"
+			"index.bootstrap-500.0",
+			"login.bootstrap-500.0",
+			"admin.bootstrap-500.1"
 		]
 	},
 	{

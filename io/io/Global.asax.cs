@@ -235,6 +235,13 @@ namespace io
             int index = -1, id = -1;
             string newPath, pathFile;
 
+            if (path.EndsWith(".css"))
+            {
+                newPath = "~/" + path;
+                HttpContext.Current.RewritePath(newPath);
+                return true;
+            }
+
             if (path.EndsWith(".js"))
             {
                 if (path.StartsWith("ui/"))
