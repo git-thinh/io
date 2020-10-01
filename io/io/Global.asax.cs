@@ -403,14 +403,33 @@ namespace io
             string f = app.Server.MapPath("~/public/vue.esm.min.js");
             if (File.Exists(f))
             {
+                string f2 = app.Server.MapPath("~/public/lodash.min.js"),
+                    lodash = File.ReadAllText(f2) + @"
+
+_.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+
+function _lodashComplite(template, jsonText) {
+    try {
+        var obj = JSON.parse(jsonText);
+        const _temp = _.template(template);
+        const text = _temp(obj);
+        return text;
+    } catch (e) {
+        return 'ERR: _lodashComplite: ' + e.message;
+    }
+}
+
+";
+
                 string jsVueCustomBegin = "var process = { env: { NODE_ENV: '' } };",
                     jsVueCustomEnd = ";decodeHTMLCached = function (s) { return s };",
-                    js = File.ReadAllText(f);
+                    js = File.ReadAllText(f) ;
 
                 int pos = js.IndexOf("export default Vue");
                 if (pos != -1) js = js.Substring(0, pos);
 
-                mJsVueScript = jsVueCustomBegin + js + jsVueCustomEnd +
+                mJsVueScript = lodash + Environment.NewLine +
+                    jsVueCustomBegin + js + jsVueCustomEnd +
                     @";function vue_compileRender(html) { try { var t = Vue.compile(html); var s = t.render.toString(); var pos = s.indexOf('{'); if(pos != -1){ s = 'function()' + s.substr(pos); }; return s; }catch(e){ return 'ERR: ' + e.message; }};";
 
                 mJsEngine = new V8ScriptEngine();
@@ -428,7 +447,8 @@ namespace io
                             <h1>{{title}}</h1>
                             <input type=""text"" v-model=""title"" id=""fname"" name=""fname""><br>
                     </div>";
-                text = mJsEngine.Script.vue_compileRender(html) as string;
+                //text = mJsEngine.Script.vue_compileRender(html) as string;
+                text = mJsEngine.Script._lodashComplite(html, JsonConvert.SerializeObject(new { title = DateTime.Now.ToString() })) as string;
             }
             catch (Exception e)
             {
@@ -570,7 +590,8 @@ namespace io
             self.kit_Init(this);
             self.ui_Init(this);
 
-            self.jse_test1(this);
+            string test = self.jse_test1(this);
+
         }
 
         protected void Application_BeginRequest(object sender, EventArgs e)
