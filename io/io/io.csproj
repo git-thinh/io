@@ -601,12 +601,13 @@
     <Content Include="public\vue.esm.js" />
     <Content Include="public\vue.esm.min.js" />
     <Content Include="public\vue.min.js" />
+    <Content Include="test\compile-1.html" />
     <Content Include="test\tree.html" />
     <Content Include="public\1\admin.html" />
     <None Include="io\config.json" />
     <Content Include="public\1\login.html" />
     <Content Include="io\vue.min.js" />
-    <Content Include="test\compile.html" />
+    <Content Include="test\compile-2.html" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
