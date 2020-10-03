@@ -1,1 +1,15 @@
-﻿
+﻿body.listview_5--bootstrap-500--1 {
+}
+
+.listview_5--bootstrap-500--1 {
+}
+
+    .listview_5--bootstrap-500--1 .flex-equal > * {
+        flex: 1;
+    }
+
+@media (min-width: 768px) {
+    .listview_5--bootstrap-500--1 .flex-md-equal > * {
+        flex: 1;
+    }
+}

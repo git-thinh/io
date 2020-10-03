@@ -197,11 +197,19 @@ namespace io
 
         private static bool response_rewritePath(HttpApplication app, string pathFile, oPage page)
         {
-            if (page == null) return false;
+            string file = string.Empty;
+            if (!string.IsNullOrWhiteSpace(pathFile)) file = app.Server.MapPath(pathFile);
+            if (page == null)
+            {
+                if (File.Exists(file))
+                {
+                    HttpContext.Current.RewritePath(pathFile);
+                    return true;
+                }
+                return false;
+            }
 
-            string key = string.Format("{0}.{1}", page.path, page.theme),
-                file = app.Server.MapPath(pathFile),
-                html = string.Empty;
+            string key = string.Format("{0}.{1}", page.path, page.theme), html = string.Empty;
 
             if (_CONST.SET_CACHE && mCaches.ContainsKey(key))
             {
@@ -282,7 +290,9 @@ namespace io
                 else return true;
             }
 
-            response_Write(new { Ok = false, Message = "Cannot find page: " + path });
+            pathFile = "~/io/site/404.htm";
+            if (response_rewritePath(app, pathFile, page)) return true;
+            //response_Write(new { Ok = false, Message = "Cannot find page: " + path });
 
             return true;
         }
@@ -486,7 +496,7 @@ namespace io
                                 a = uiName.Split(new string[] { "_", "--" }, StringSplitOptions.None);
                                 pos = pos + 2;
                                 uiHtml = Environment.NewLine +
-                                    @"<input type=""hidden"" name=""___io_ui"" value=""[{ID}]"" "+
+                                    @"<input type=""hidden"" name=""___io_ui"" value=""[{ID}]"" " +
                                     @"ui-name=""" + uiName + @""" ui-group=""" + a[0] + @""" ui-kit=""" + a[1] + @""" ui-theme=""" + a[2] + @""" ui-model=""" + a[3] + @""" />" +
                                     Environment.NewLine +
                                     dic[uiName] + temp.Substring(pos, temp.Length - pos);

@@ -68,6 +68,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="image\bootstrap\logo-white.svg" />
+    <Content Include="image\bootstrap\logo.svg" />
     <Content Include="data\admin.json" />
     <Content Include="data\site\1.json" />
     <Content Include="data\user\thinh.json" />
@@ -77,6 +79,7 @@
     <Content Include="io\am\user\1\ready.js" />
     <None Include="io\am\user\1\setting.json" />
     <Content Include="io\am\user\1\bootstrap-452.htm" />
+    <Content Include="io\site\404.bootstrap-500.htm" />
     <Content Include="io\site\admin.bootstrap-500.htm" />
     <Content Include="io\site\index.bootstrap-500.htm" />
     <Content Include="io\site\login.bootstrap-500.htm" />
@@ -690,18 +693,16 @@
     <Content Include="io\theme\dashkit-151\libs\select2\dist\js\select2.min.js" />
     <Content Include="io\site\login.dashkit-151.htm" />
     <Content Include="io\site\admin.dashkit-151.htm" />
-    <Content Include="io\ui\form\1\bootstrap-500--1.htm" />
-    <Content Include="io\ui\form\1\form_1.css" />
-    <Content Include="io\ui\form\2\bootstrap-500--1.htm" />
-    <Content Include="io\ui\form\2\form_2.css" />
-    <Content Include="io\ui\form\3\bootstrap-500--1.htm" />
-    <Content Include="io\ui\form\3\form_3.css" />
-    <Content Include="io\ui\form\4\bootstrap-500--1.htm" />
-    <Content Include="io\ui\form\4\form_4.css" />
-    <Content Include="io\ui\form\5\bootstrap-500--1.htm" />
-    <Content Include="io\ui\form\5\form_5.css" />
-    <Content Include="io\ui\form\6\bootstrap-500--1.htm" />
-    <Content Include="io\ui\form\6\form_6.css" />
+    <Content Include="io\ui\footer\1\bootstrap-500--4.htm" />
+    <Content Include="io\ui\footer\1\bootstrap-500--3.htm" />
+    <Content Include="io\ui\footer\1\bootstrap-500--2.htm" />
+    <Content Include="io\ui\form\checkout\bootstrap-500--1.htm" />
+    <Content Include="io\ui\form\checkout\form_1.css" />
+    <Content Include="io\ui\form\checkout\form_checkout.js" />
+    <Content Include="io\ui\header\1\bootstrap-500--4.htm" />
+    <Content Include="io\ui\header\1\bootstrap-500--3.htm" />
+    <Content Include="io\ui\listview\3\bootstrap-500--2.htm" />
+    <Content Include="io\ui\poster\1\bootstrap-500--2.htm" />
     <Content Include="io\ui\poster\1\bootstrap-500--1.htm" />
     <Content Include="io\ui\poster\1\poster_1.css" />
     <Content Include="io\ui\poster\2\bootstrap-500--1.htm" />
@@ -719,16 +720,6 @@
     <Content Include="io\ui\header\1\header_1.css" />
     <Content Include="io\ui\footer\1\bootstrap-500--1.htm" />
     <Content Include="io\ui\footer\1\footer_1.css" />
-    <Content Include="io\ui\footer\2\bootstrap-500--1.htm" />
-    <Content Include="io\ui\footer\2\footer_2.css" />
-    <Content Include="io\ui\footer\3\bootstrap-500--1.htm" />
-    <Content Include="io\ui\footer\3\footer_3.css" />
-    <Content Include="io\ui\footer\4\bootstrap-500--1.htm" />
-    <Content Include="io\ui\footer\4\footer_4.css" />
-    <Content Include="io\ui\footer\5\bootstrap-500--1.htm" />
-    <Content Include="io\ui\footer\5\footer_5.css" />
-    <Content Include="io\ui\footer\6\bootstrap-500--1.htm" />
-    <Content Include="io\ui\footer\6\footer_6.css" />
     <Content Include="io\ui\listview\3\bootstrap-500--1.htm" />
     <Content Include="io\ui\listview\3\listview_3.css" />
     <Content Include="io\ui\listview\4\bootstrap-500--1.htm" />

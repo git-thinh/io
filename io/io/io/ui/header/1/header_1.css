@@ -7,3 +7,28 @@ body.header_1--bootstrap-500--1 {
 
 body.header_1--bootstrap-500--2 {
 }
+
+body.header_1--bootstrap-500--4 {
+    background-color: #fff;
+}
+
+
+.header_1--bootstrap-500--4 .container {
+    max-width: 960px;
+}
+
+.header_1--bootstrap-500--4 {
+    background-color: rgba(0, 0, 0, .85);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+}
+
+    .header_1--bootstrap-500--4 a {
+        color: #8e8e8e;
+        transition: color .15s ease-in-out;
+    }
+
+        .header_1--bootstrap-500--4 a:hover {
+            color: #fff;
+            text-decoration: none;
+        }
