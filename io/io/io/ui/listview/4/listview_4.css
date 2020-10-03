@@ -1,0 +1,20 @@
+﻿
+.listview_4--bootstrap-500--1 h2 {
+    font-weight: 400;
+}
+
+/* Center align the text within the three columns below the carousel */
+.listview_4--bootstrap-500--1 .col-lg-4 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+    .listview_4--bootstrap-500--1 .col-lg-4 p {
+        margin-right: .75rem;
+        margin-left: .75rem;
+    }
+
+.listview_4--bootstrap-500--1 .featurette-divider {
+    margin: 5rem 0;
+    /* Space out the Bootstrap <hr> more */
+}

@@ -7,9 +7,17 @@ using Microsoft.ClearScript.V8;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace io
 {
+    public class _CONST
+    {
+        public const bool SET_CACHE = false;
+        public const string PAGE_NOT_FOUND = "<h1>Can not find {0}</h1>";
+        public const string COMPONENT_SETTING_WRONG = "<h1>Component setting wrong: {0} => [GroupName_ComponentName--ThemeName--Id]</h1>";
+    }
+
     public class oSite
     {
         public int id { set; get; }
@@ -30,6 +38,8 @@ namespace io
 
     public static class self
     {
+        public static string ROOT_PATH = "";
+
         #region [ VAR ]
 
         static string[] mPaths = new string[] { };
@@ -56,7 +66,6 @@ namespace io
         static ConcurrentDictionary<string, string> mUI_Js = new ConcurrentDictionary<string, string>();
         static ConcurrentDictionary<string, string> mUI_Css = new ConcurrentDictionary<string, string>();
 
-        public static string ROOT_PATH = "";
         public static void Init(HttpApplication app) => ROOT_PATH = app.Server.MapPath("~/");
 
         #endregion
@@ -194,39 +203,33 @@ namespace io
                 file = app.Server.MapPath(pathFile),
                 html = string.Empty;
 
-            bool ok = false;
-
-            if (mCaches.ContainsKey(key))
+            if (_CONST.SET_CACHE && mCaches.ContainsKey(key))
             {
                 mCaches.TryGetValue(key, out html);
-                ok = true;
             }
             else if (File.Exists(file))
             {
                 html = File.ReadAllText(file);
                 html = render_pageHtml(html, page);
                 mCaches.TryAdd(key, html);
-                ok = true;
             }
+            else html = string.Format(_CONST.PAGE_NOT_FOUND, file);
 
-            if (ok)
-            {
-                //string name = "io_page_" + page.path.ToLower(), value = page.theme;
-                //HttpContext.Current.Response.Cookies.Set(new HttpCookie(name, value));
+            //string name = "io_page_" + page.path.ToLower(), value = page.theme;
+            //HttpContext.Current.Response.Cookies.Set(new HttpCookie(name, value));
 
-                //name = "io_site_" + page.path.ToLower();
-                //value = page.site_id.ToString();
-                //HttpContext.Current.Response.Cookies.Set(new HttpCookie(name, value));
+            //name = "io_site_" + page.path.ToLower();
+            //value = page.site_id.ToString();
+            //HttpContext.Current.Response.Cookies.Set(new HttpCookie(name, value));
 
-                response_Write(html, "text/html");
-            }
+            response_Write(html, "text/html");
 
-            return ok;
+            return true;
         }
 
         #endregion
 
-        #region [ ROUTER_RENDER ]
+        #region [ ROUTER ]
 
         static V8ScriptEngine mJsEngine = null;
         static string mJsVueScript = string.Empty;
@@ -235,19 +238,9 @@ namespace io
             int index = -1, id = -1;
             string newPath, pathFile;
 
-            if (path.EndsWith(".css"))
+            if (path.StartsWith("io/"))
             {
                 newPath = "~/" + path;
-                HttpContext.Current.RewritePath(newPath);
-                return true;
-            }
-
-            if (path.EndsWith(".js"))
-            {
-                if (path.StartsWith("ui/"))
-                    newPath = "~/io/" + path.Replace('_', '/').Replace(".", "/method.");
-                else
-                    newPath = "~/" + path;
                 HttpContext.Current.RewritePath(newPath);
                 return true;
             }
@@ -371,53 +364,152 @@ namespace io
             return false;
         }
 
+        #endregion
+
+        #region [ RENDER ]
+
         private static string render_pageHtml(string html, oPage page)
         {
-            string s =
-                        @"<input type=""hidden"" id=""___io_site"" value=""" + page.site_id.ToString() + @"""/>" +
-                        @"<input type=""hidden"" id=""___io_theme"" value=""" + page.theme + @"""/>" +
-                        @"<input type=""hidden"" id=""___io_token"" value=""""/>",
-                        uiJs = string.Empty,
-                        key = string.Format("{0}.{1}", page.path, page.theme),
-                        uis = string.Empty,
-                        uiName, uiTag, uiHtml = string.Empty;
-            string[] a;
-            if (mSite_Modules.ContainsKey(key))
+            string render = string.Empty,
+                s = Environment.NewLine + @"<input type=""hidden"" id=""___io_site"" value=""" + page.site_id.ToString() + @"""/>" +
+                Environment.NewLine + @"<input type=""hidden"" id=""___io_theme"" value=""" + page.theme + @"""/>" +
+                Environment.NewLine + @"<input type=""hidden"" id=""___io_token"" value=""""/>",
+                key = string.Format("{0}.{1}", page.path, page.theme),
+                path = string.Empty,
+                temp = string.Empty,
+                file = string.Empty,
+                bodyClass = string.Empty,
+                uiID = string.Empty,
+                uiJs = string.Empty,
+                uiCss = string.Empty,
+                uis = string.Empty,
+                uiName = string.Empty,
+                uiTag = string.Empty,
+                uiHtml = string.Empty,
+                uiTick = DateTime.Now.ToString("yyMMddHHmmssfff");
+            string[] a, uiArr, uiArrFull;
+
+            if (_CONST.SET_CACHE)
             {
-                mSite_Modules.TryGetValue(key, out uis);
-                if (!string.IsNullOrWhiteSpace(uis))
+                if (mSite_Modules.ContainsKey(key))
                 {
-                    a = uis.Split(';');
-                    if (a.Length == 1)
+                    mSite_Modules.TryGetValue(key, out uis);
+                    if (!string.IsNullOrWhiteSpace(uis))
                     {
-                        uiName = a[0];
-                        uiTag = "{{" + uiName + "}}";
-                        if (mUI_Html.ContainsKey(uiName))
-                            mUI_Html.TryGetValue(uiName, out uiHtml);
-                        html = html.Replace(uiTag, uiHtml);
-                        uiJs += @"<script src=""/ui/" + uiName.Split('.')[0] + @".js"" type=""text/javascript""></script>";
-                    }
-                    else
-                    {
-                        for (int i = 0; i < a.Length; i++)
+                        a = uis.Split(';');
+                        if (a.Length == 1)
                         {
-                            uiName = a[i];
+                            uiName = a[0];
                             uiTag = "{{" + uiName + "}}";
                             if (mUI_Html.ContainsKey(uiName))
                                 mUI_Html.TryGetValue(uiName, out uiHtml);
                             html = html.Replace(uiTag, uiHtml);
                             uiJs += @"<script src=""/ui/" + uiName.Split('.')[0] + @".js"" type=""text/javascript""></script>";
                         }
+                        else
+                        {
+                            for (int i = 0; i < a.Length; i++)
+                            {
+                                uiName = a[i];
+                                uiTag = "{{" + uiName + "}}";
+                                if (mUI_Html.ContainsKey(uiName))
+                                    mUI_Html.TryGetValue(uiName, out uiHtml);
+                                html = html.Replace(uiTag, uiHtml);
+                                uiJs += @"<script src=""/ui/" + uiName.Split('.')[0] + @".js"" type=""text/javascript""></script>";
+                            }
+                        }
                     }
                 }
+
+                s = s +
+                    @"<script src=""/io/vue.min.js"" type=""text/javascript""></script>" +
+                    uiJs +
+                    @"<script src=""/io/ui.sdk.js"" type=""text/javascript""></script>" +
+                    "</body>";
+                render = html.Replace("</body>", s);
+            }
+            else
+            {
+                uiArr = html.Split(new string[] { "{{" }, StringSplitOptions.None)
+                    .Where(ax => ax.Length > 1)
+                    .Where((ax, k) => k > 0 && k < ax.Length - 2)
+                    .Select(x => x.Split('}')[0].Trim())
+                    .Distinct()
+                    .ToArray();
+
+                if (uiArr.Length > 0)
+                {
+                    var dic = new Dictionary<string, string>() { };
+                    for (int i = 0; i < uiArr.Length; i++)
+                    {
+                        uiName = uiArr[i];
+                        a = uiName.Split(new string[] { "_", "--" }, StringSplitOptions.None);
+                        if (a.Length > 3)
+                        {
+                            bodyClass += " " + uiName;
+
+                            path = string.Format(@"/io/ui/{0}/{1}/{2}--{3}.htm", a[0], a[1], a[2], a[3]);
+                            file = (ROOT_PATH + path).Replace("\\/", "\\");
+                            if (File.Exists(file))
+                            {
+                                uiHtml = File.ReadAllText(file);
+
+                                path = string.Format(@"/io/ui/{0}/{1}/{2}.js", a[0], a[1], a[0] + "_" + a[1]);
+                                file = (ROOT_PATH + path).Replace("\\/", "\\");
+                                if (File.Exists(file))
+                                    uiJs += Environment.NewLine + @"<script src=""" + path + @""" type=""text/javascript""></script>";
+
+                                path = string.Format(@"/io/ui/{0}/{1}/{2}.css", a[0], a[1], a[0] + "_" + a[1]);
+                                file = (ROOT_PATH + path).Replace("\\/", "\\");
+                                if (File.Exists(file))
+                                    uiCss += Environment.NewLine + @"<link href=""" + path + @""" rel=""stylesheet"">";
+                            }
+                            else uiHtml = string.Format(_CONST.PAGE_NOT_FOUND, file);
+                        }
+                        else uiHtml = string.Format(_CONST.COMPONENT_SETTING_WRONG, uiName);
+                        dic.Add(uiName, uiHtml);
+                    }
+
+                    uiArrFull = html.Split(new string[] { "{{" }, StringSplitOptions.None).ToArray();
+                    var bi = new StringBuilder(string.Empty);
+                    int pos = -1;
+                    for (int i = 0; i < uiArrFull.Length; i++)
+                    {
+                        temp = uiArrFull[i];
+                        pos = temp.IndexOf("}}");
+                        if (pos == -1) bi.Append(temp);
+                        else
+                        {
+                            uiName = temp.Substring(0, pos);
+                            if (dic.ContainsKey(uiName))
+                            {
+                                a = uiName.Split(new string[] { "_", "--" }, StringSplitOptions.None);
+                                pos = pos + 2;
+                                uiHtml = Environment.NewLine +
+                                    @"<input type=""hidden"" name=""___io_ui"" value=""[{ID}]"" "+
+                                    @"ui-name=""" + uiName + @""" ui-group=""" + a[0] + @""" ui-kit=""" + a[1] + @""" ui-theme=""" + a[2] + @""" ui-model=""" + a[3] + @""" />" +
+                                    Environment.NewLine +
+                                    dic[uiName] + temp.Substring(pos, temp.Length - pos);
+
+                                uiID = "ui-" + uiTick + "-" + i.ToString();
+                                uiHtml = uiHtml.Replace("[{ID}]", uiID);
+
+                                bi.Append(uiHtml);
+                            }
+                        }
+                    }
+                    html = bi.ToString();
+
+                }
+
+                s = uiCss + Environment.NewLine + s +
+                    Environment.NewLine + @"<script src=""/io/vue.min.js"" type=""text/javascript""></script>" +
+                    uiJs +
+                    Environment.NewLine + @"<script src=""/io/ui.sdk.js"" type=""text/javascript""></script>" +
+                    "</body>";
+                render = html.Replace("[{BODY_CLASS}]", bodyClass).Replace("</body>", s);
             }
 
-            s = s +
-                @"<script src=""/io/vue.min.js"" type=""text/javascript""></script>" +
-                uiJs +
-                @"<script src=""/io/ui.sdk.js"" type=""text/javascript""></script>" +
-                "</body>";
-            string render = html.Replace("</body>", s);
             return render;
         }
 
