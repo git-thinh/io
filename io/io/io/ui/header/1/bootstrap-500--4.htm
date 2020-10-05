@@ -2,6 +2,5 @@
     <nav class="container d-flex flex-column flex-md-row justify-content-between">
         <a v-for="link in links" :class="link.class" :href="link.url" v-if="link.hasOwnProperty('html')" v-html="link.html">{{link.title}}</a>
         <a :class="link.class" :href="link.url" v-else>{{link.title}}</a>
-        <a href="javascript:alert(1)" class="py-2 d-none d-md-inline-block">[?]</a>
     </nav>
 </header>

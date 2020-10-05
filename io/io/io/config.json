@@ -3,6 +3,7 @@
 		"id": 1,
 		"name": "len",
 		"domains": [
+			"id.iot.vn",
 			"localhost",
 			"localhost:62725"
 		],
