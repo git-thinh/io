@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 using Microsoft.ClearScript.V8;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace io
@@ -33,7 +32,10 @@ namespace io
         public string key { set; get; }
         public string path { set; get; }
         public string theme { set; get; }
+        public string token { set; get; }
         public bool login { set; get; }
+
+        public oPage() { token = string.Empty; }
     }
 
     public static class self
@@ -66,7 +68,14 @@ namespace io
         static ConcurrentDictionary<string, string> mUI_Js = new ConcurrentDictionary<string, string>();
         static ConcurrentDictionary<string, string> mUI_Css = new ConcurrentDictionary<string, string>();
 
-        public static void Init(HttpApplication app) => ROOT_PATH = app.Server.MapPath("~/");
+        static string END_BODY_HTML = "</body></html>";
+        public static void Init(HttpApplication app)
+        {
+            ROOT_PATH = app.Server.MapPath("~/");
+            string file = app.Server.MapPath("~/io/ui.sdk.htm");
+            if (File.Exists(file))
+                END_BODY_HTML = File.ReadAllText(file);
+        }
 
         #endregion
 
@@ -218,7 +227,7 @@ namespace io
             else if (File.Exists(file))
             {
                 html = File.ReadAllText(file);
-                html = render_pageHtml(html, page);
+                html = render_pageHtml(app, html, page);
                 mCaches.TryAdd(key, html);
             }
             else html = string.Format(_CONST.PAGE_NOT_FOUND, file);
@@ -244,7 +253,23 @@ namespace io
         static bool request_RouterGET(HttpApplication app, string path, string key)
         {
             int index = -1, id = -1;
-            string newPath, pathFile;
+            string newPath, pathFile, file;
+
+            if (path.EndsWith(".json"))
+            {
+                newPath = "~/" + path;
+                file = app.Server.MapPath(newPath);
+                if (File.Exists(file))
+                {
+                    HttpContext.Current.RewritePath(newPath);
+                    return true;
+                }
+                else
+                {
+                    response_Write("{}");
+                    return true;
+                }
+            }
 
             if (path.StartsWith("io/"))
             {
@@ -378,12 +403,10 @@ namespace io
 
         #region [ RENDER ]
 
-        private static string render_pageHtml(string html, oPage page)
+        private static string render_pageHtml(HttpApplication app, string html, oPage page)
         {
             string render = string.Empty,
-                s = Environment.NewLine + @"<input type=""hidden"" id=""___io_site"" value=""" + page.site_id.ToString() + @"""/>" +
-                Environment.NewLine + @"<input type=""hidden"" id=""___io_theme"" value=""" + page.theme + @"""/>" +
-                Environment.NewLine + @"<input type=""hidden"" id=""___io_token"" value=""""/>",
+                footerPage = string.Empty,
                 key = string.Format("{0}.{1}", page.path, page.theme),
                 path = string.Empty,
                 temp = string.Empty,
@@ -431,12 +454,12 @@ namespace io
                     }
                 }
 
-                s = s +
-                    @"<script src=""/io/vue.min.js"" type=""text/javascript""></script>" +
-                    uiJs +
-                    @"<script src=""/io/ui.sdk.js"" type=""text/javascript""></script>" +
-                    "</body>";
-                render = html.Replace("</body>", s);
+                //s = s +
+                //    @"<script src=""/io/vue.min.js"" type=""text/javascript""></script>" +
+                //    uiJs +
+                //    @"<script src=""/io/ui.sdk.js"" type=""text/javascript""></script>" +
+                //    "</body>";
+                //render = html.Replace("</body>", s);
             }
             else
             {
@@ -458,7 +481,9 @@ namespace io
                         {
                             bodyClass += " " + uiName;
 
-                            path = string.Format(@"/io/ui/{0}/{1}/{2}--{3}.htm", a[0], a[1], a[2], a[3]);
+                            path = string.Format(@"/public/{0}/{1}.htm", page.site_id, uiName);
+                            //path = string.Format(@"/io/ui/{0}/{1}/{2}--{3}.htm", a[0], a[1], a[2], a[3]);
+
                             file = (ROOT_PATH + path).Replace("\\/", "\\");
                             if (File.Exists(file))
                             {
@@ -496,8 +521,9 @@ namespace io
                                 a = uiName.Split(new string[] { "_", "--" }, StringSplitOptions.None);
                                 pos = pos + 2;
                                 uiHtml = Environment.NewLine +
-                                    @"<input type=""hidden"" name=""___io_ui"" value=""[{ID}]"" " +
-                                    @"ui-name=""" + uiName + @""" ui-group=""" + a[0] + @""" ui-kit=""" + a[1] + @""" ui-theme=""" + a[2] + @""" ui-model=""" + a[3] + @""" />" +
+                                    @"<div ui-name=""" + uiName + @""" ui-id=""[{ID}]"" name=""___io_ui"" class=""[{ID}]--edit-vc ___io_ui--edit-vc"" " +
+                                    @"ui-group=""" + a[0] + @""" ui-kit=""" + a[1] +
+                                    @""" ui-theme=""" + a[2] + @""" ui-temp=""" + a[3] + @""" onclick=""___io_editVcChose(this)""></div>" +
                                     Environment.NewLine +
                                     dic[uiName] + temp.Substring(pos, temp.Length - pos);
 
@@ -508,16 +534,18 @@ namespace io
                             }
                         }
                     }
-                    html = bi.ToString();
 
+                    file = app.Server.MapPath("~/io/ui.sdk.htm");
+                    if (File.Exists(file)) END_BODY_HTML = File.ReadAllText(file);
+
+                    html = bi.ToString() + uiCss + uiJs + END_BODY_HTML;
+                    html = html
+                        .Replace("[{SITE}]", page.site_id.ToString())
+                        .Replace("[{THEME}]", page.theme)
+                        .Replace("[{TOKEN}]", page.token);
                 }
 
-                s = uiCss + Environment.NewLine + s +
-                    Environment.NewLine + @"<script src=""/io/vue.min.js"" type=""text/javascript""></script>" +
-                    uiJs +
-                    Environment.NewLine + @"<script src=""/io/ui.sdk.js"" type=""text/javascript""></script>" +
-                    "</body>";
-                render = html.Replace("[{BODY_CLASS}]", bodyClass).Replace("</body>", s);
+                render = html.Replace("[{BODY_CLASS}]", bodyClass);
             }
 
             return render;
@@ -721,6 +749,7 @@ function _lodashComplite(template, jsonText) {
 
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
+            bool isMobi = Request.Browser.IsMobileDevice;
             self.request_Router(this);
         }
     }
