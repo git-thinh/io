@@ -7,6 +7,7 @@ using Microsoft.ClearScript.V8;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Text;
+using System.Web.Services.Description;
 
 namespace io
 {
@@ -394,7 +395,7 @@ namespace io
             }
             catch (Exception err)
             {
-                ;
+                response_Write(new { Ok = false, Message = "ERR: request_Router = " + err.Message, Url = url.ToString() });
             }
             return false;
         }
@@ -482,9 +483,13 @@ namespace io
                             bodyClass += " " + uiName;
 
                             path = string.Format(@"/public/{0}/{1}.htm", page.site_id, uiName);
-                            //path = string.Format(@"/io/ui/{0}/{1}/{2}--{3}.htm", a[0], a[1], a[2], a[3]);
-
                             file = (ROOT_PATH + path).Replace("\\/", "\\");
+                            if (!File.Exists(file))
+                            {
+                                path = string.Format(@"/io/ui/{0}/{1}/{2}--{3}.htm", a[0], a[1], a[2], a[3]);
+                                file = (ROOT_PATH + path).Replace("\\/", "\\");
+                            }
+
                             if (File.Exists(file))
                             {
                                 uiHtml = File.ReadAllText(file);
@@ -622,7 +627,7 @@ function _lodashComplite(template, jsonText) {
             {
                 var a = Directory.GetFiles(root, "*.htm");
                 var fs = a.Select(x => Path.GetFileName(x)).ToArray();
-                string text, name, ui;
+                string text, name;
                 string[] uis = new string[] { };
                 for (int i = 0; i < a.Length; i++)
                 {

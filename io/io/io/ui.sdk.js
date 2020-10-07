@@ -145,70 +145,68 @@ function ___io_vcInit(id, callback) {
                         //////vc_new.className = name + ' ' + vc.getAttribute('class');
                         //////vc.parentNode.replaceChild(vc_new, vc);
 
-                        var vname = '___vc_' + group + '_' + kit;
-                        console.log(vname, window[vname]);
-                        //if (window.hasOwnProperty(vname)) {
+                        var vname = '___vc_' + group + '_' + kit, vc_exist = window.hasOwnProperty(vname);
+                        console.log(id, ' [1.1]: ', vname, window[vname], vc_exist);
+                        if (vc_exist) {
+                            const VueCtor = Vue.extend(window[vname]);
 
-                        const HelloCtor = Vue.extend(window[vname]);
-                        //const vm = new HelloCtor();
+                            var vm = new VueCtor({
+                                template: htm,
+                                data: function () {
+                                    var dt = {
+                                        com: {
+                                            id: id,
+                                            name: name,
+                                            group: group,
+                                            kit: kit,
+                                            theme: theme,
+                                            temp: temp_code
+                                        },
+                                        data: data
+                                    };
+                                    var keys = Object.keys(cf_com);
+                                    keys.forEach(function (key) { dt[key] = cf_com[key]; });
+                                    //console.log(dt);
+                                    return dt;
+                                },
+                                computed: {
+                                    ___self: function () { return window[id]; }
+                                },
+                                mounted: function () {
+                                    var _self = this;
+                                    //_self.$el.id = id;
+                                    var $el = $(_self.$el);
+                                    $el.addClass(name);
 
-                        var vm = new HelloCtor({
-                            template: htm,
-                            data: function () {
-                                var dt = {
-                                    com: {
-                                        id: id,
-                                        name: name,
-                                        group: group,
-                                        kit: kit,
-                                        theme: theme,
-                                        temp: temp_code
-                                    },
-                                    data: data
-                                };
-                                var keys = Object.keys(cf_com);
-                                keys.forEach(function (key) { dt[key] = cf_com[key]; });
-                                //console.log(dt);
-                                return dt;
-                            },
-                            computed: {
-                                ___self: function () { return window[id]; }
-                            },
-                            mounted: function () {
-                                var _self = this;
-                                //_self.$el.id = id;
-                                var $el = $(_self.$el);
-                                $el.addClass(name);
+                                    //el.style.animation = 'fadein 2s';
+                                    //el.addEventListener("webkitAnimationEnd", function () { el.style.opacity = 1; });
+                                    //el.addEventListener("animationend", function () { el.style.opacity = 1; });
 
-                                //el.style.animation = 'fadein 2s';
-                                //el.addEventListener("webkitAnimationEnd", function () { el.style.opacity = 1; });
-                                //el.addEventListener("animationend", function () { el.style.opacity = 1; });
+                                    //console.log(id, '[1.1]');
+                                    Vue.nextTick(function () {
+                                        var vc = document.getElementById(id);
+                                        console.log(id, ' [1.2]: ', vc !== null);
+                                        if (vc) {
+                                            //window[id] = vm;
 
-                                console.log(id, '[1.1]');
-                                Vue.nextTick(function () {
+                                            //console.log(id, '[1.2]', vm.$el, vc);
 
-                                    var vc = document.getElementById(id);
-                                    console.log(id, '[1.2]', vc);
-                                     
-                                    //window[id] = vm;
+                                            //debugger;
+                                            //var vc = document.getElementById(id);
+                                            vc.parentNode.replaceChild(vm.$el, vc);
+                                            ////vm.$el.id = id;
+                                            //console.log(id, '[1.3]', vm.$el, vc);
+                                            ////vc.remove();
+                                        }
+                                    })
 
-                                    //console.log(id, '[1.2]', vm.$el, vc);
+                                },
+                                methods: {
+                                }
+                            }).$mount();
+                        }
 
-                                    //debugger;
-                                    //var vc = document.getElementById(id);
-                                    vc.parentNode.replaceChild(vm.$el, vc);
-                                    ////vm.$el.id = id;
-                                    console.log(id, '[1.3]', vm.$el, vc);
-                                    ////vc.remove();
-
-                                })
-
-                            },
-                            methods: {
-                            }
-                        }).$mount();
-
-                        console.log(id, '[2.1]', vm.$el);
+                        //console.log(id, '[2.1]', vm.$el);
 
                         ////window[id] = vm;
 
