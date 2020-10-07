@@ -267,6 +267,8 @@
     <Content Include="io\theme\bootstrap-500\example\assets\dist\js\bootstrap.esm.min.js.map" />
     <Content Include="io\theme\bootstrap-500\example\assets\dist\js\bootstrap.js.map" />
     <Content Include="io\theme\bootstrap-500\example\assets\dist\js\bootstrap.min.js.map" />
+    <Content Include="io\ui\footer\1\footer_1.js" />
+    <Content Include="io\ui\header\1\header_1.js" />
     <Content Include="io\ui\header\1\header_1.json" />
     <Content Include="io\ui\poster\1\poster_1.js" />
     <Content Include="io\ui\poster\1\poster_1.json" />

@@ -523,16 +523,16 @@ namespace io
                             uiName = temp.Substring(0, pos);
                             if (dic.ContainsKey(uiName))
                             {
+                                uiID = "ui-" + uiTick + "-" + i.ToString();
                                 a = uiName.Split(new string[] { "_", "--" }, StringSplitOptions.None);
                                 pos = pos + 2;
                                 uiHtml = Environment.NewLine +
-                                    @"<div ui-name=""" + uiName + @""" ui-id=""[{ID}]"" name=""___io_ui"" class=""[{ID}]--edit-vc ___io_ui--edit-vc"" " +
+                                    @"<div ui-name=""" + uiName + @""" id=""edit-" + uiID + @""" ui-id=""[{ID}]"" name=""___io_ui"" class=""[{ID}]--edit-vc ___io_ui--edit-vc"" " +
                                     @"ui-group=""" + a[0] + @""" ui-kit=""" + a[1] +
                                     @""" ui-theme=""" + a[2] + @""" ui-temp=""" + a[3] + @""" onclick=""___io_editVcChose(this)""></div>" +
                                     Environment.NewLine +
                                     dic[uiName] + temp.Substring(pos, temp.Length - pos);
 
-                                uiID = "ui-" + uiTick + "-" + i.ToString();
                                 uiHtml = uiHtml.Replace("[{ID}]", uiID);
 
                                 bi.Append(uiHtml);

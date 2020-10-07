@@ -1,4 +1,4 @@
-﻿<div id="[{ID}]" class="container pb-5"> 
+﻿<div class="container pb-5"> 
         <div class="py-5 text-center">
             <img class="d-block mx-auto mb-4" src="/image/bootstrap/logo.svg" alt="" width="72" height="57">
             <h2>Checkout form</h2>
@@ -204,7 +204,8 @@
 
                     <hr class="my-4">
 
-                    <button class="btn btn-primary btn-lg btn-block" type="submit">Continue to checkout</button>
+                    <!--<button class="btn btn-primary btn-lg btn-block" type="submit">Continue to checkout</button>-->
+                    <button class="btn btn-primary btn-lg btn-block" type="button" @click="form_checkValidity">Continue to checkout</button>
                 </form>
             </div>
         </div> 

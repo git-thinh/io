@@ -4,7 +4,7 @@
             <h1 class="font-weight-light">{{data.title}}</h1>
             <p class="lead text-muted">{{data.description}}</p>
             <p>
-                <a v-for="link in links" :href="link.url" :class="link.class">{{link.title}}</a>
+                <a v-for="link in links" href="javascript:void(-1);" @click="domything()" :class="link.class">{{link.title}}</a>
             </p>
         </div>
     </div>

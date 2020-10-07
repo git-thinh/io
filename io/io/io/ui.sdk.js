@@ -49,32 +49,46 @@ function ___io_editAppToggle(el) {
 }
 
 function ___io_editVcSetup() {
-    var els = document.querySelectorAll('*[name="___io_ui"]');
+    var els = document.querySelectorAll('*[name="___io_ui"]'),
+        counter = els.length;
     els.forEach(function (el_, i_) {
         var name = el_.getAttribute('ui-name'),
             id = el_.getAttribute('ui-id');
         if (id && name) {
             console.log(name, id);
 
-            ___io_vcInit(id, function (ok) {
-                console.log(id, ok);
+            var el = $(el_).next().get(0);
+            if (el) {
+                el.id = id;
 
-                var el = document.getElementById(id);
-                if (el) {
-                    //el.style.animation = 'fadein 1s';
-                    //// Code for Chrome, Safari and Opera
-                    //el.addEventListener("webkitAnimationEnd", function () { el.style.opacity = 1; });
-                    //el.addEventListener("animationend", function () { el.style.opacity = 1; });
+                ___io_vcInit(id, function (ok) {
+                    console.log(id, '[INIT_END]', ok);
 
-                    var r1 = el.getBoundingClientRect();
-                    //debugger;
-                    //console.log(name, id, r1);
-                    el_.style.left = r1.left + 'px';
-                    el_.style.top = r1.top + 'px';
-                    el_.style.width = r1.width + 'px';
-                    el_.style.height = r1.height + 'px';
-                }
-            });
+                    ////////////var el = document.getElementById(id);
+                    ////////////var prevIt = $('#2').prev();
+                    ////////////console.log(id, el.id);
+
+                    ////////////el.style.animation = 'fadein 1s';
+                    ////////////// Code for Chrome, Safari and Opera
+                    ////////////el.addEventListener("webkitAnimationEnd", function () { el.style.opacity = 1; });
+                    ////////////el.addEventListener("animationend", function () { el.style.opacity = 1; });
+
+                    //////////var r1 = el.getBoundingClientRect();
+                    ////////////debugger;
+                    ////////////console.log(name, id, r1);
+                    //////////el_.style.left = r1.left + 'px';
+                    //////////el_.style.top = r1.top + 'px';
+                    //////////el_.style.width = r1.width + 'px';
+                    //////////el_.style.height = r1.height + 'px';
+
+                    counter--;
+                    if (counter === 0) {
+                        console.log('DONE...');
+                        ___io_scriptInsertHeader('/io/theme/bootstrap-500/dist/js/bootstrap.bundle.min.js');
+                    }
+                });
+            }
+
         }
     });
 }
@@ -133,35 +147,20 @@ function ___io_vcInit(id, callback) {
                 fetch(urlConfig).then(function (r2) { return r2.json(); }).then(function (cf_com) {
                     //console.log(id, cf_com);
                     fetch(json).then(function (r3) { return r3.json(); }).then(function (data) {
-                        //console.log(data);
-
-                        //var vc = document.getElementById(id);
-                        //vc.id = null;
-                        //console.log(vc);
-
                         ////////var dupNode = document.getElementById("foo").cloneNode(false);
                         //////var vc_new = new DOMParser().parseFromString(htm, 'text/html').body.childNodes[0];
-                        //////vc_new.id = id;
-                        //////vc_new.className = name + ' ' + vc.getAttribute('class');
                         //////vc.parentNode.replaceChild(vc_new, vc);
 
                         var vname = '___vc_' + group + '_' + kit, vc_exist = window.hasOwnProperty(vname);
-                        console.log(id, ' [1.1]: ', vname, window[vname], vc_exist);
+                        console.log(id, '[1.1]:', vname, vc_exist);
                         if (vc_exist) {
+                            var vc_info = { id: id, name: name, group: group, kit: kit, theme: theme, temp: temp_code };
                             const VueCtor = Vue.extend(window[vname]);
-
                             var vm = new VueCtor({
                                 template: htm,
                                 data: function () {
                                     var dt = {
-                                        com: {
-                                            id: id,
-                                            name: name,
-                                            group: group,
-                                            kit: kit,
-                                            theme: theme,
-                                            temp: temp_code
-                                        },
+                                        com: vc_info,
                                         data: data
                                     };
                                     var keys = Object.keys(cf_com);
@@ -173,55 +172,31 @@ function ___io_vcInit(id, callback) {
                                     ___self: function () { return window[id]; }
                                 },
                                 mounted: function () {
-                                    var _self = this;
-                                    //_self.$el.id = id;
-                                    var $el = $(_self.$el);
-                                    $el.addClass(name);
-
-                                    //el.style.animation = 'fadein 2s';
-                                    //el.addEventListener("webkitAnimationEnd", function () { el.style.opacity = 1; });
-                                    //el.addEventListener("animationend", function () { el.style.opacity = 1; });
-
-                                    //console.log(id, '[1.1]');
+                                    var _self = this, vc_el = _self.$el;
+                                    vc_el.id = id;
+                                    $(vc_el).addClass(name);
                                     Vue.nextTick(function () {
                                         var vc = document.getElementById(id);
-                                        console.log(id, ' [1.2]: ', vc !== null);
                                         if (vc) {
-                                            //window[id] = vm;
-
-                                            //console.log(id, '[1.2]', vm.$el, vc);
-
-                                            //debugger;
-                                            //var vc = document.getElementById(id);
                                             vc.parentNode.replaceChild(vm.$el, vc);
-                                            ////vm.$el.id = id;
-                                            //console.log(id, '[1.3]', vm.$el, vc);
-                                            ////vc.remove();
-                                        }
-                                    })
 
+                                            if (!window.hasOwnProperty('___vc')) window['___vc'] = {};
+                                            window.___vc[id] = vm;
+
+                                            if (!window.hasOwnProperty('___vc_info')) window['___vc_info'] = [];
+                                            window.___vc_info.push(vc_info);
+
+                                            //if (window[vname].mounted) window[vname].mounted();
+
+                                            if (callback) callback(true);
+                                        }
+                                    });
                                 },
                                 methods: {
                                 }
                             }).$mount();
                         }
-
-                        //console.log(id, '[2.1]', vm.$el);
-
-                        ////window[id] = vm;
-
-                        //console.log(id, '[2.2]', vm.$el, vc);
-
-                        ////debugger;
-                        ////var vc = document.getElementById(id);
-                        ////vc.parentNode.replaceChild(vm.$el, vc);
-                        ////vm.$el.id = id;
-                        //console.log(id, '[2.3]', vm.$el, vc);
-                        //vc.remove();
-
-                        if (callback) callback(true);
-
-                        //} else if (callback) callback(true);
+                        else if (callback) callback(true);
                     }).catch(function () {
                         if (callback) callback(false);
                     });
