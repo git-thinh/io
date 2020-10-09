@@ -1,0 +1,178 @@
+﻿<div id="___POPUP_ID" style="display:none;">
+    <div id="___POPUP_ID-modal"></div>
+    <div id="___POPUP_ID-indicator" class="lds-ripple"><div></div><div></div></div>
+    <div id="___POPUP_ID-main">
+        <div id="___POPUP_ID-title">Test</div>
+        <iframe src="about:blank" id="___POPUP_ID-iframe" frameborder="0"></iframe>
+    </div>
+    <style type="text/css">
+        #___POPUP_ID {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 99999;
+            width: 100%;
+            height: 100vh;
+            display: inline-block !important;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        #___POPUP_ID-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: #000;
+            opacity: 0.1;
+            padding: 0;
+            margin: 0;
+        }
+
+
+        #___POPUP_ID-main {
+            z-index: 1;
+            position: absolute;
+            background-color: transparent;
+            /*background-color: blue;*/
+            opacity: 0;
+            padding: 0;
+            margin: 0;
+            top: 10%;
+            min-width: 90%;
+            min-height: 80%;
+            left: 5%;
+            border: 1px solid #000;
+            display: inline-block;
+        }
+
+            #___POPUP_ID-main.active {
+                /*display: inline-block;*/
+            }
+
+        #___POPUP_ID-title {
+            display: inline-block;
+            width: 100%;
+            height: 35px;
+            background-color: yellow;
+        }
+
+        #___POPUP_ID-iframe {
+            width: 100%;
+            min-height: 300px;
+        }
+
+        #___POPUP_ID-title h1 {
+            color: red;
+        }
+
+        /*--------------------------------------*/
+
+        #___POPUP_ID .lds-ripple {
+            display: inline-block;
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            z-index: 1;
+            top: 40%;
+        }
+
+            #___POPUP_ID .lds-ripple div {
+                position: absolute;
+                border: 5px solid red;
+                opacity: 1;
+                border-radius: 50%;
+                animation: ___POPUP_ID-lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+            }
+
+                #___POPUP_ID .lds-ripple div:nth-child(2) {
+                    animation-delay: -0.5s;
+                }
+
+        @keyframes ___POPUP_ID-lds-ripple {
+            0% {
+                top: 36px;
+                left: 36px;
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+
+            100% {
+                top: 0px;
+                left: 0px;
+                width: 72px;
+                height: 72px;
+                opacity: 0;
+            }
+        }
+
+        /*--------------------------------------*/
+
+        #___POPUP_ID-main.active {
+            background-color: #fff;
+            -webkit-animation: ___POPUP_ID-fadein 2s; /* Safari, Chrome and Opera > 12.1 */
+            -moz-animation: ___POPUP_ID-fadein 2s; /* Firefox < 16 */
+            -ms-animation: ___POPUP_ID-fadein 2s; /* Internet Explorer */
+            -o-animation: ___POPUP_ID-fadein 2s; /* Opera < 12.1 */
+            animation: ___POPUP_ID-fadein 2s;
+        }
+
+        @keyframes ___POPUP_ID-fadein {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Firefox < 16 */
+        @-moz-keyframes ___POPUP_ID-fadein {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Safari, Chrome and Opera > 12.1 */
+        @-webkit-keyframes ___POPUP_ID-fadein {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Internet Explorer */
+        @-ms-keyframes ___POPUP_ID-fadein {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Opera < 12.1 */
+        @-o-keyframes ___POPUP_ID-fadein {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</div>
