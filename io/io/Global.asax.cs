@@ -72,7 +72,7 @@ namespace io
         public static void Init(HttpApplication app)
         {
             ROOT_PATH = app.Server.MapPath("~/");
-            string file = app.Server.MapPath("~/io/ui.sdk.htm");
+            string file = app.Server.MapPath("~/io/base/ui.sdk.htm");
             if (File.Exists(file))
                 END_BODY_HTML = File.ReadAllText(file);
         }
@@ -561,8 +561,8 @@ namespace io
 
         public static void vue_initScript(HttpApplication app)
         {
-            string f = app.Server.MapPath("~/public/vue.esm.min.js"),
-                f2 = app.Server.MapPath("~/public/lodash.min.js");
+            string f = app.Server.MapPath("~/io/base/vue.esm.min.js"),
+                f2 = app.Server.MapPath("~/io/base/lodash.min.js");
 
             if (File.Exists(f) && File.Exists(f2))
             {

@@ -79,7 +79,7 @@
     <Content Include="io\am\user\1\ready.js" />
     <None Include="io\am\user\1\setting.json" />
     <Content Include="io\am\user\1\bootstrap-452.htm" />
-    <Content Include="io\jquery.min.js" />
+    <Content Include="io\lib\jquery.min.js" />
     <Content Include="io\site\404.bootstrap-500.htm" />
     <Content Include="io\site\admin.bootstrap-500.htm" />
     <Content Include="io\site\index.bootstrap-500 - Copy.htm" />
@@ -321,10 +321,11 @@
     <Content Include="io\theme\fomantic-ui\themes\default\assets\images\flags.png" />
     <Content Include="io\theme\fomantic-ui\themes\github\assets\fonts\octicons.svg" />
     <Content Include="io\theme\fomantic-ui\themes\material\assets\fonts\icons.svg" />
-    <Content Include="io\ui.pop.htm" />
-    <Content Include="io\ui.sdk.css" />
-    <Content Include="io\ui.sdk.htm" />
-    <Content Include="io\ui.sdk.js" />
+    <Content Include="io\lib\dom-to-image.min.js" />
+    <Content Include="io\base\ui.iframe-pop.htm" />
+    <Content Include="io\base\ui.sdk.css" />
+    <Content Include="io\base\ui.sdk.htm" />
+    <Content Include="io\base\ui.sdk.js" />
     <Content Include="io\site\404.htm" />
     <Content Include="io\site\404.bootstrap-452.htm" />
     <Content Include="io\site\admin.bootstrap-452.htm" />
@@ -475,7 +476,7 @@
   <ItemGroup>
     <Content Include="data\login.txt" />
     <Content Include="Global.asax" />
-    <Content Include="io\sdk.js" />
+    <Content Include="io\base\sdk.js" />
     <Content Include="io\theme\bootstrap-452\KIT_USER_AVATAR.htm" />
     <Content Include="io\theme\dashkit-151\css\theme-dark.css" />
     <Content Include="io\theme\dashkit-151\css\theme.css" />
@@ -932,10 +933,9 @@
     <Content Include="public\1\header_1--bootstrap-500--4.htm" />
     <Content Include="public\1\poster_1--bootstrap-500--2.htm" />
     <Content Include="public\1\poster_1--bootstrap-500--1.htm" />
-    <Content Include="public\lodash.min.js" />
-    <Content Include="public\vue.esm.js" />
-    <Content Include="public\vue.esm.min.js" />
-    <Content Include="public\vue.min.js" />
+    <Content Include="io\lib\lodash.min.js" />
+    <Content Include="io\lib\vue.esm.js" />
+    <Content Include="io\lib\vue.esm.min.js" />
     <Content Include="test\compile-1.html" />
     <Content Include="test\iframe\fam.css" />
     <Content Include="test\iframe\fam.htm" />
@@ -944,7 +944,7 @@
     <Content Include="test\iframe\test.js" />
     <Content Include="test\tree.html" />
     <None Include="io\config.json" />
-    <Content Include="io\vue.min.js" />
+    <Content Include="io\lib\vue.min.js" />
     <Content Include="test\compile-2.html" />
     <Content Include="Web.config" />
   </ItemGroup>

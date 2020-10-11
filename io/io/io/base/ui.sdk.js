@@ -1,4 +1,7 @@
-﻿var ___IO_UI__EDIT_VC = '.___io_ui--edit-vc', ___IO_UI__EDIT_PANEL = '#___io_ui--edit-panel', ___IO_SITE = '';
+﻿var ___IO_UI__EDIT_VC = '.___io_ui--edit-vc',
+    ___IO_UI__EDIT_PANEL = '#___io_ui--edit-panel',
+    ___IO_SITE = '',
+    ___IO_VC = [];
 var ___IO_DATA = {
     ui_edit: {
         active: false,
@@ -8,16 +11,8 @@ var ___IO_DATA = {
 
 console.log('UI.SDK...');
 window.addEventListener('DOMContentLoaded', function (event) {
-    if (window.jQuery) ___io_ready(); else ___io_scriptInsertHeader('/io/jquery.min.js', ___io_ready);
+    if (window.jQuery) ___io_tabInit(); else ___io_scriptInsertHeader('/io/lib/jquery.min.js', ___io_tabInit);
 });
-
-function ___io_ready() {
-    $('.___io_ui--edit-icon').fadeIn(2000);
-
-    var el = document.getElementById('___io_site');
-    if (el) ___IO_SITE = el.value;
-    ___io_editVcSetup();
-}
 
 function ___io_scriptInsertHeader(pUrl, pCallback, pId) {
     if (pUrl && pUrl.length > 0) {
@@ -31,7 +26,50 @@ function ___io_scriptInsertHeader(pUrl, pCallback, pId) {
     } else if (pCallback) pCallback({ Ok: false, Url: pUrl });
 }
 
-function ___io_editAppToggle(el) {
+//-----------------------------------------------------------
+
+function ___io_tabInit() {
+    var el = document.getElementById('___io_site');
+    if (el) ___IO_SITE = el.value;
+    ___io_tabLoadComponent();
+}
+
+function ___io_tabLoadComponent() {
+    ___IO_VC = [];
+    var els = document.querySelectorAll('*[name="___io_ui"]'),
+        counter = els.length;
+    els.forEach(function (el_, i_) {
+        var name = el_.getAttribute('ui-name'),
+            id = el_.getAttribute('ui-id');
+        if (id && name) {
+            ///console.log('#tabInit: ' + id, name);
+            var el = $(el_).next().get(0);
+            if (el) {
+                el.id = id;
+                ___io_vcInit(id, function (ok) {
+                    console.log('#tabLoadComponent: ' + id, name, ok);
+                    counter--;
+                    if (counter === 0) {
+                        console.log('#tabLoadComponent: DONE = ', ___IO_VC);
+                        ___io_tabReady();
+                    }
+                });
+            }
+        }
+    });
+}
+
+function ___io_tabReady() {
+    ___io_scriptInsertHeader('/io/theme/bootstrap-500/dist/js/bootstrap.bundle.min.js', function () {
+        //$('.___io_ui--edit-icon').fadeIn(2000);
+        console.log('#tabReady: DONE...');
+    });
+}
+
+//-----------------------------------------------------------
+
+
+function ___io_editAppToggle_bak(el) {
     if (el) {
         if (___IO_DATA.ui_edit.active) {
             ___IO_DATA.ui_edit.active = false;
@@ -47,6 +85,52 @@ function ___io_editAppToggle(el) {
         }
     }
 }
+
+function ___io_editAppToggle(el) {
+    if (el) {
+        if (___IO_DATA.ui_edit.active) {
+            ___IO_DATA.ui_edit.active = false;
+            $(el).removeClass('active');
+            $(document.body).removeClass('___io_ui--edit-vc');
+        } else {
+            ___IO_DATA.ui_edit.active = true;
+            $(el).addClass('active');
+            $(document.body).addClass('___io_ui--edit-vc');
+            ___io_famPopupInit('widget', 'fomantic-ui', '1');
+        }
+    }
+}
+
+function ___io_vcGetThumbnailAll(callback) {
+    var po = [];
+
+
+    var els = document.querySelectorAll('*[name="___io_ui"]'),
+        counter = els.length;
+    els.forEach(function (el_, i_) {
+        var name = el_.getAttribute('ui-name'),
+            id = el_.getAttribute('ui-id');
+        if (id && name) {
+            var el = document.getElementById(id);
+            if (el) {
+                console.log(name, id);
+                domtoimage.toPng(node)
+                    .then(function (dataUrl) {
+                        var img = new Image();
+                        img.src = dataUrl;
+                        document.body.appendChild(img);
+                    })
+                    .catch(function (error) {
+                        console.error('oops, something went wrong!', error);
+                    });
+            }
+        }
+    });
+
+
+}
+
+//-----------------------------------------------------------
 
 function ___io_editVcSetup() {
     var els = document.querySelectorAll('*[name="___io_ui"]'),
@@ -127,6 +211,8 @@ function ___io_editVcChose(el_) {
     }
 }
 
+//-----------------------------------------------------------
+
 function ___io_vcInit(id, callback) {
     var el_ = document.querySelector('*[ui-id="' + id + '"]');
     if (el_) {
@@ -137,6 +223,29 @@ function ___io_vcInit(id, callback) {
             temp_code = el_.getAttribute('ui-temp'),
             s = '';
         if (name && id) {
+            var vcItem = {
+                id: id,
+                name: name,
+                group: group,
+                kit: kit,
+                theme: theme,
+                temp: temp_code,
+                type: 'main-inline',
+                vue: false,
+                position: {
+                    top: 0,
+                    left: 0,
+                    width: 0,
+                    height: 0,
+                },
+                image: {
+                    width: 0,
+                    height: 0,
+                    url: ''
+                }
+            };
+            ___IO_VC.push(vcItem);
+
             var url = '/io/ui/' + group + '/' + kit + '/' + theme + '--' + temp_code + '.htm';
             var urlConfig = '/io/ui/' + group + '/' + kit + '/' + group + '_' + kit + '.json';
             var json = '/public/' + ___IO_SITE + '/' + group + '_' + kit + '--' + theme + '.json';
@@ -152,15 +261,15 @@ function ___io_vcInit(id, callback) {
                         //////vc.parentNode.replaceChild(vc_new, vc);
 
                         var vname = '___vc_' + group + '_' + kit, vc_exist = window.hasOwnProperty(vname);
-                        console.log(id, '[1.1]:', vname, vc_exist);
+                        //console.log(id, '[1.1]:', vname, vc_exist);
                         if (vc_exist) {
-                            var vc_info = { id: id, name: name, group: group, kit: kit, theme: theme, temp: temp_code };
                             const VueCtor = Vue.extend(window[vname]);
                             var vm = new VueCtor({
                                 template: htm,
                                 data: function () {
+                                    vcItem.vue = true;
                                     var dt = {
-                                        com: vc_info,
+                                        com: vcItem,
                                         data: data
                                     };
                                     var keys = Object.keys(cf_com);
@@ -180,11 +289,7 @@ function ___io_vcInit(id, callback) {
                                         if (vc) {
                                             vc.parentNode.replaceChild(vm.$el, vc);
 
-                                            if (!window.hasOwnProperty('___vc')) window['___vc'] = {};
-                                            window.___vc[id] = vm;
-
-                                            if (!window.hasOwnProperty('___vc_info')) window['___vc_info'] = [];
-                                            window.___vc_info.push(vc_info);
+                                            window[id] = _self;
 
                                             //if (window[vname].mounted) window[vname].mounted();
 
@@ -212,9 +317,9 @@ function ___io_vcInit(id, callback) {
 
 //-----------------------------------------------------------
 
-function ___io_famCall() {
+function ___io_famPopupInit(comName, themeName, tempName) {
     var id = 'pop-' + (new Date()).getTime();
-    fetch('/io/ui.pop.htm').then(function (r1) { return r1.text(); }).then(function (pop) {
+    fetch('/io/ui.iframe-pop.htm').then(function (r1) { return r1.text(); }).then(function (pop) {
         pop = pop.split('___POPUP_ID').join(id);
         var el = new DOMParser().parseFromString(pop, 'text/html').body.childNodes[0];
         document.body.appendChild(el);
@@ -222,7 +327,8 @@ function ___io_famCall() {
         var main = document.getElementById(id + '-main');
         var fam = document.getElementById(id + '-iframe');
         if (fam && main) {
-            fetch('/view/test/fam.htm').then(function (r1) { return r1.text(); }).then(function (htm) {
+            var urlTemp = '/io/ui/iframe/' + comName + '/' + themeName + '--' + tempName + '.htm';
+            fetch(urlTemp).then(function (r1) { return r1.text(); }).then(function (htm) {
                 var recMain = main.getBoundingClientRect();
                 fam.style.height = (recMain.height - 35) + 'px';
                 htm = htm.split('___POPUP_ID').join(id);

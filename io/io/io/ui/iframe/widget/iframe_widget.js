@@ -4,8 +4,8 @@ function fam_pageReady(id) {
 
     $('.ui.dropdown').dropdown();
 
-    if (window.parent && window.parent.pop_famReady) {
-        window.parent.pop_famReady(id);
+    if (window.parent && window.parent.___io_famReady) {
+        window.parent.___io_famReady(id);
     }
 }
 
