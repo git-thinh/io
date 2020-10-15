@@ -1,0 +1,13 @@
+﻿{
+  "title": {
+    "text": "This is title",
+    "display": true,
+    "class": "",
+    "style": "position: absolute;top:0;left: 0;padding: 0 10px;"
+  },
+  "close": {
+    "display": true,
+    "class": "",
+    "style": "position: absolute;right: 7px;top: 5px;padding: 0 10px;background: red;color: #fff;cursor: pointer;"
+  }
+}

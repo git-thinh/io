@@ -79,6 +79,9 @@
     <Content Include="io\am\user\1\ready.js" />
     <None Include="io\am\user\1\setting.json" />
     <Content Include="io\am\user\1\bootstrap-452.htm" />
+    <Content Include="io\base\ui.iframe-pop.css" />
+    <Content Include="io\base\ui.iframe-pop.js" />
+    <Content Include="io\base\ui.sdk.iframe.js" />
     <Content Include="io\lib\jquery.min.js" />
     <Content Include="io\site\404.bootstrap-500.htm" />
     <Content Include="io\site\admin.bootstrap-500.htm" />
@@ -439,6 +442,7 @@
     <Content Include="io\ui\header\1\header_1.js" />
     <Content Include="io\ui\header\1\header_1.json" />
     <Content Include="io\ui\iframe\widget\fomantic-ui--1.htm" />
+    <None Include="io\ui\iframe\widget\iframe_widget.json" />
     <Content Include="io\ui\iframe\widget\iframe_widget.css" />
     <Content Include="io\ui\iframe\widget\iframe_widget.js" />
     <Content Include="io\ui\poster\1\poster_1.js" />

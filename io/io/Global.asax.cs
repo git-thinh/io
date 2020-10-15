@@ -606,7 +606,7 @@ function _lodashComplite(template, jsonText) {
                             <input type=""text"" v-model=""title"" id=""fname"" name=""fname""><br>
                     </div>";
                 //text = mJsEngine.Script.vue_compileRender(html) as string;
-                text = mJsEngine.Script._lodashComplite(html, JsonConvert.SerializeObject(new { title = DateTime.Now.ToString() })) as string;
+                //text = mJsEngine.Script._lodashComplite(html, JsonConvert.SerializeObject(new { title = DateTime.Now.ToString() })) as string;
             }
             catch (Exception e)
             {

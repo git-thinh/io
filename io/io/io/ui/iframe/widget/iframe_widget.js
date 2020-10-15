@@ -1,11 +1,9 @@
 ﻿
-function fam_pageReady(id) {
-    console.log('IFRAME: DOM fully loaded and parsed = ', id);
+function fam_pageReady() {
+    console.log('IFRAME: DOM fully loaded and parsed = ', ___IO_ID);
 
     $('.ui.dropdown').dropdown();
 
-    if (window.parent && window.parent.___io_famReady) {
-        window.parent.___io_famReady(id);
-    }
+    ___IO_VUE.___ready();
 }
 

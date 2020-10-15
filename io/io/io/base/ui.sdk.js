@@ -1,6 +1,7 @@
 ﻿var ___IO_UI__EDIT_VC = '.___io_ui--edit-vc',
     ___IO_UI__EDIT_PANEL = '#___io_ui--edit-panel',
     ___IO_SITE = '',
+    ___IO_THEME = '',
     ___IO_VC = [];
 var ___IO_DATA = {
     ui_edit: {
@@ -24,6 +25,24 @@ function ___io_scriptInsertHeader(pUrl, pCallback, pId) {
         if (pId) script.setAttribute('id', pId);
         document.head.appendChild(script);
     } else if (pCallback) pCallback({ Ok: false, Url: pUrl });
+}
+
+function ___io_fetchGet(pUrls, pCallback) {
+    if (pUrls && pUrls.length > 0) {
+        var url = pUrls;
+        if (Array.isArray(pUrls)) {
+            if (pUrls.length == 1) url = pUrls[0];
+            else {
+                var po = [];
+                pUrls.forEach(function (url_) { po.push(fetch(url_).then(function (r) { return r.text(); })); });
+                Promise.all(po).then(function (arr) { pCallback(arr); });
+                return;
+            }
+        }
+        if (url.length > 0) {
+            fetch(url_).then(function (r) { return r.text(); }).then(function (text) { pCallback(text); });
+        }
+    } else pCallback('');
 }
 
 //-----------------------------------------------------------
@@ -317,28 +336,81 @@ function ___io_vcInit(id, callback) {
 
 //-----------------------------------------------------------
 
-function ___io_famPopupInit(comName, themeName, tempName) {
-    var id = 'pop-' + (new Date()).getTime();
-    fetch('/io/base/ui.iframe-pop.htm').then(function (r1) { return r1.text(); }).then(function (pop) {
-        pop = pop.split('___POPUP_ID').join(id);
-        var el = new DOMParser().parseFromString(pop, 'text/html').body.childNodes[0];
-        document.body.appendChild(el);
+function ___io_famPopupInit(comName, themeName, tempName, data) {
+    console.log('POPUP_IFRAME: ', comName, themeName, tempName);
+    var urlTemp = '/io/ui/iframe/' + comName + '/' + themeName + '--' + tempName + '.htm';
+    var urlCss = '/io/ui/iframe/' + comName + '/iframe_' + comName + '.css';
+    var urlConfig = '/io/ui/iframe/' + comName + '/iframe_' + comName + '.json';
+    ___io_fetchGet([
+        '/io/base/ui.iframe-pop.htm',
+        '/io/base/ui.iframe-pop.js',
+        urlTemp, urlConfig, urlCss],
+        function (arr) {
+            var pop = arr[0],
+                jsVue = arr[1],
+                htm = arr[2],
+                cf = arr[3],
+                css = arr[4];
 
-        var main = document.getElementById(id + '-main');
-        var fam = document.getElementById(id + '-iframe');
-        if (fam && main) {
-            var urlTemp = '/io/ui/iframe/' + comName + '/' + themeName + '--' + tempName + '.htm';
-            fetch(urlTemp).then(function (r1) { return r1.text(); }).then(function (htm) {
-                var recMain = main.getBoundingClientRect();
-                fam.style.height = (recMain.height - 35) + 'px';
-                htm = htm.split('___POPUP_ID').join(id);
-                var doc = fam.contentWindow || fam.contentDocument.document || fam.contentDocument;
-                doc.document.open();
-                doc.document.write(htm);
-                doc.document.close();
+            var id = 'pop-' + (new Date()).getTime();
+                        
+            htm += '<link href="/io/ui/iframe/' + comName + '/iframe_' + comName + '.css" rel="stylesheet" /> \
+                    <script src="/io/base/ui.sdk.iframe.js"></script> \
+                    <script type="text/javascript"> \
+                        ___IO_ID = "'+ id + '"; ___IO_SITE = "' + ___IO_SITE + '"; ___IO_THEME = "' + themeName +'"; \
+                        if(window.parent) { ___IO_MAIN = window.parent; } \
+                        if(window.parent && window.parent["' + id + '"]){ ___IO_VUE = window.parent["' + id + '"];} \
+                    </script> \
+                    <script src="/io/ui/iframe/' + comName + '/iframe_' + comName + '.js"></script> \
+                    <script type="text/javascript"> \
+                        window.addEventListener("DOMContentLoaded", function () { fam_pageReady(); }); \
+                    </script> \
+                    </body></html>'
+            htm = htm.split('___POPUP_ID').join(id);
+            pop = pop.split('___POPUP_ID').join(id);
+            jsVue = jsVue.split('___POPUP_ID').join(id);
+            css = css.split('___POPUP_ID').join(id);
+            cf = cf.split('___POPUP_ID').join(id);
+
+            var el = new DOMParser().parseFromString(pop, 'text/html').body.childNodes[0];
+            document.body.appendChild(el);
+
+            window[id + '.htm'] = htm;
+            if (data == null) data = {};
+            if (typeof data != 'object') data = { value: data };
+            data.app___ = {
+                id: id,
+                //name: name,
+                group: 'iframe',
+                kit: comName,
+                theme: themeName,
+                temp: tempName,
+                type: 'iframe-pop',
+                vue: false
+            };
+            if (cf.length == 0) cf = '{}';
+            //console.log(cf);
+            data.cf___ = JSON.parse(cf);
+            window[id + '.data'] = data;
+
+            var blob, url;
+
+            if (css.length > 0) {
+                blob = new Blob([css], { type: 'text/css' });
+                url = URL.createObjectURL(blob);
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = url;
+                document.head.appendChild(link);
+            }
+
+            blob = new Blob([jsVue], { type: 'text/javascript' });
+            url = URL.createObjectURL(blob);
+            ___io_scriptInsertHeader(url, function () {
+                window[id].$mount('#' + id);
             });
-        }
-    });
+
+        });
 }
 
 function ___io_famInit(id) {
@@ -389,13 +461,3 @@ function ___io_famMainShow(id, visable) {
     }
 }
 
-function ___io_famReady(id) {
-    var main = document.getElementById(id + '-main');
-    if (main) {
-        main.className = 'active';
-        //main.style.animation = id + '-fadein 2s';
-        // Code for Chrome, Safari and Opera
-        main.addEventListener("webkitAnimationEnd", function () { main.style.opacity = 1; });
-        main.addEventListener("animationend", function () { main.style.opacity = 1; });
-    }
-}
