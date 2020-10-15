@@ -61,7 +61,7 @@ function ___io_tabLoadComponent() {
 
 function ___io_tabReady() {
     ___io_scriptInsertHeader('/io/theme/bootstrap-500/dist/js/bootstrap.bundle.min.js', function () {
-        //$('.___io_ui--edit-icon').fadeIn(2000);
+        $('.___io_ui--edit-icon').fadeIn(1000);
         console.log('#tabReady: DONE...');
     });
 }
@@ -319,7 +319,7 @@ function ___io_vcInit(id, callback) {
 
 function ___io_famPopupInit(comName, themeName, tempName) {
     var id = 'pop-' + (new Date()).getTime();
-    fetch('/io/ui.iframe-pop.htm').then(function (r1) { return r1.text(); }).then(function (pop) {
+    fetch('/io/base/ui.iframe-pop.htm').then(function (r1) { return r1.text(); }).then(function (pop) {
         pop = pop.split('___POPUP_ID').join(id);
         var el = new DOMParser().parseFromString(pop, 'text/html').body.childNodes[0];
         document.body.appendChild(el);
