@@ -5,7 +5,7 @@
 		"domains": [
 			"id.iot.vn",
 			"localhost",
-			"localhost:62725"
+			"localhost:57936"
 		],
 		"pages": [
 			"index.bootstrap-500.0",
